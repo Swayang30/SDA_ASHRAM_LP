@@ -1,0 +1,235 @@
+@import "tailwindcss";
+
+/* ------------------------------------------------------------------ *
+ *  Swami Debananda Ashram — design tokens (Tailwind v4 @theme)
+ *  Palette pulled exactly from the Figma file (see master brief §3.1)
+ * ------------------------------------------------------------------ */
+@theme {
+  --color-maroon: #541100; /* primary brand dark — first word of headings, lotus pattern */
+  --color-brown: #744012; /* Ashram section background, footer */
+  --color-cocoa: #48342b; /* body text */
+  --color-orange: #ff552b; /* accent — "& Highlights", active dot, signatures, CTAs, logo */
+  --color-ivory: #fffbf0; /* primary page background */
+  --color-cream: #fdf9f3; /* alternate warm background */
+  --color-blush: #fff2f2; /* Old-age-home card + Books section background */
+  --color-gold: #c6a15b; /* lotus / ornament artwork */
+  --color-ink: #000000; /* hero + navbar over-image */
+
+  /* Type families — wired to next/font CSS variables from layout.tsx */
+  --font-serif: var(--font-playfair), "Cormorant Garamond", Georgia, serif;
+  --font-script: var(--font-pinyon), "Parisienne", cursive;
+  --font-sans: var(--font-poppins), "Inter", system-ui, sans-serif;
+
+  /* Layout */
+  --container-site: 1440px;
+
+  /* Motion tokens — reuse everywhere so the page feels like one system */
+  --ease-soft: cubic-bezier(0.22, 1, 0.36, 1); /* ~power3.out */
+  --ease-back: cubic-bezier(0.34, 1.56, 0.64, 1); /* ~back.out(1.6) */
+  --ease-expo: cubic-bezier(0.16, 1, 0.3, 1); /* ~expo.out */
+  --dur-fast: 0.4s;
+  --dur-base: 0.6s;
+  --dur-slow: 0.9s;
+}
+
+/* ------------------------------------------------------------------ *
+ *  Base
+ * ------------------------------------------------------------------ */
+:root {
+  --background: var(--color-ivory);
+  --foreground: var(--color-cocoa);
+}
+
+html {
+  scroll-behavior: auto; /* Lenis owns scrolling */
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+/* Lenis */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--color-orange) 30%, transparent);
+  color: var(--color-maroon);
+}
+
+/* ------------------------------------------------------------------ *
+ *  Reusable utilities / decorative textures
+ * ------------------------------------------------------------------ */
+.container-site {
+  width: 100%;
+  max-width: var(--container-site);
+  margin-inline: auto;
+  padding-inline: 1.5rem;
+}
+@media (min-width: 768px) {
+  .container-site {
+    padding-inline: 3rem;
+  }
+}
+
+/* Warm paper grain for cream sections */
+.texture-paper {
+  background-image: radial-gradient(
+    circle at 1px 1px,
+    color-mix(in srgb, var(--color-brown) 6%, transparent) 1px,
+    transparent 0
+  );
+  background-size: 22px 22px;
+}
+
+/* Diagonal weave for the brown Ashram block */
+.texture-diagonal {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    color-mix(in srgb, #ffffff 5%, transparent) 0px,
+    color-mix(in srgb, #ffffff 5%, transparent) 1px,
+    transparent 1px,
+    transparent 14px
+  );
+}
+
+/* Soft warm elevation */
+.shadow-warm {
+  box-shadow: 0 24px 60px -30px color-mix(in srgb, var(--color-maroon) 55%, transparent);
+}
+.shadow-warm-sm {
+  box-shadow: 0 12px 30px -18px color-mix(in srgb, var(--color-maroon) 45%, transparent);
+}
+
+/* Two-tone section heading pieces (used by SectionHeading) */
+.heading-lead {
+  color: var(--color-maroon);
+}
+.heading-accent {
+  color: var(--color-orange);
+  font-style: italic;
+}
+
+/* Temple-arch clip for the Sacred Activities frame */
+.clip-arch {
+  clip-path: path(
+    "M 0 100 L 0 42 C 0 18 22 0 50 0 C 78 0 100 18 100 42 L 100 100 Z"
+  );
+}
+
+/* Custom cursor targets */
+@media (hover: hover) and (pointer: fine) {
+  body.has-custom-cursor {
+    cursor: none;
+  }
+  body.has-custom-cursor a,
+  body.has-custom-cursor button {
+    cursor: none;
+  }
+}
+.cursor-ring.cursor-grow {
+  width: 3rem;
+  height: 3rem;
+  margin-left: -1.5rem;
+  margin-top: -1.5rem;
+  background-color: color-mix(in srgb, var(--color-orange) 12%, transparent);
+}
+
+/* ------------------------------------------------------------------ *
+ *  Keyframe animations
+ * ------------------------------------------------------------------ */
+
+/* Hero — slow ken-burns breathing */
+.hero-kenburns {
+  animation: kenburns 26s ease-in-out infinite alternate;
+  transform-origin: center;
+}
+@keyframes kenburns {
+  from {
+    transform: scale(1) translate3d(0, 0, 0);
+  }
+  to {
+    transform: scale(1.12) translate3d(-1.5%, -1%, 0);
+  }
+}
+
+/* Hero — soft ripple sheen */
+.hero-ripple {
+  background: radial-gradient(
+      120% 80% at 50% 100%,
+      rgba(255, 85, 43, 0.18),
+      transparent 60%
+    ),
+    repeating-radial-gradient(
+      circle at 50% 90%,
+      rgba(255, 255, 255, 0.05) 0px,
+      rgba(255, 255, 255, 0.05) 2px,
+      transparent 2px,
+      transparent 40px
+    );
+  animation: ripple 12s ease-in-out infinite;
+}
+@keyframes ripple {
+  0%,
+  100% {
+    background-size: 100% 100%, 100% 100%;
+    opacity: 0.35;
+  }
+  50% {
+    background-size: 110% 110%, 120% 120%;
+    opacity: 0.5;
+  }
+}
+
+/* Quote band — leaf sway */
+.leaf-sway {
+  animation: sway 7s ease-in-out infinite;
+}
+.leaf-sway-alt {
+  animation: sway 8s ease-in-out infinite reverse;
+}
+@keyframes sway {
+  0%,
+  100% {
+    transform: rotate(-2.5deg);
+  }
+  50% {
+    transform: rotate(2.5deg);
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ *  Reduced motion — honour fully (master brief §4.3 / §10)
+ *  ScrollFloat / SplitText render in their final visible state.
+ * ------------------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .reveal-target,
+  .split-target,
+  .scrollfloat-target {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+  }
+}
