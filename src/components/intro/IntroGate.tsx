@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import Lenis from "lenis";
 import IntroSequence from "./IntroSequence";
@@ -14,8 +15,15 @@ const SESSION_KEY = "sda_intro_seen";
 export default function IntroGate() {
   // `null` = undecided (first render, avoids SSR flash); false = skip; true = play.
   const [show, setShow] = useState<boolean | null>(null);
+  const pathname = usePathname();
 
   useEffect(() => {
+    // The intro shutter belongs to the homepage only — deep links to detail
+    // pages open straight into content.
+    if (pathname !== "/") {
+      setShow(false);
+      return;
+    }
     const reduce = window.matchMedia(
       "(prefers-reduced-motion: reduce)"
     ).matches;
@@ -26,7 +34,7 @@ export default function IntroGate() {
       return;
     }
     setShow(true);
-  }, []);
+  }, [pathname]);
 
   // Lock scrolling while the intro is on screen.
   useEffect(() => {
@@ -50,7 +58,7 @@ export default function IntroGate() {
       {show && (
         <motion.div
           key="intro-gate"
-          className="fixed inset-0 z-[100]"
+          className="fixed inset-0 z-100"
           initial={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}

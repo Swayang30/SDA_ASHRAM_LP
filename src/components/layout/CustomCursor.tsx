@@ -16,13 +16,29 @@ export default function CustomCursor() {
     setEnabled(true);
     document.body.classList.add("has-custom-cursor");
 
-    let mx = window.innerWidth / 2;
-    let my = window.innerHeight / 2;
+    // Start off-screen and invisible — the cursor must NOT paint at a fixed
+    // spot (e.g. screen-centre) before the pointer has actually moved.
+    let mx = -100;
+    let my = -100;
     let rx = mx;
     let ry = my;
     let raf = 0;
+    let seen = false;
+
+    const reveal = () => {
+      if (seen) return;
+      seen = true;
+      dot.current?.classList.remove("opacity-0");
+      ring.current?.classList.remove("opacity-0");
+    };
 
     const onMove = (e: MouseEvent) => {
+      if (!seen) {
+        // Jump to the pointer on first move so it doesn't fly in from -100.
+        rx = e.clientX;
+        ry = e.clientY;
+        reveal();
+      }
       mx = e.clientX;
       my = e.clientY;
       if (dot.current) {
@@ -31,6 +47,13 @@ export default function CustomCursor() {
       const t = e.target as HTMLElement;
       const interactive = t.closest("a, button, input, [role='button']");
       ring.current?.classList.toggle("cursor-grow", !!interactive);
+    };
+
+    // Hide again when the pointer leaves the window.
+    const onLeave = () => {
+      dot.current?.classList.add("opacity-0");
+      ring.current?.classList.add("opacity-0");
+      seen = false;
     };
 
     const loop = () => {
@@ -43,10 +66,12 @@ export default function CustomCursor() {
     };
 
     window.addEventListener("mousemove", onMove);
+    document.addEventListener("mouseleave", onLeave);
     raf = requestAnimationFrame(loop);
 
     return () => {
       window.removeEventListener("mousemove", onMove);
+      document.removeEventListener("mouseleave", onLeave);
       cancelAnimationFrame(raf);
       document.body.classList.remove("has-custom-cursor");
     };
@@ -58,11 +83,11 @@ export default function CustomCursor() {
     <>
       <div
         ref={dot}
-        className="pointer-events-none fixed left-0 top-0 z-[200] -ml-1 -mt-1 h-2 w-2 rounded-full bg-orange mix-blend-difference"
+        className="pointer-events-none fixed left-0 top-0 z-200 -ml-1 -mt-1 h-2 w-2 rounded-full bg-orange opacity-0 mix-blend-difference"
       />
       <div
         ref={ring}
-        className="cursor-ring pointer-events-none fixed left-0 top-0 z-[200] -ml-4 -mt-4 h-8 w-8 rounded-full border border-orange/70 transition-[width,height,margin,background-color] duration-300"
+        className="cursor-ring pointer-events-none fixed left-0 top-0 z-200 -ml-4 -mt-4 h-8 w-8 rounded-full border border-orange/70 opacity-0 transition-[width,height,margin,background-color] duration-300"
       />
     </>
   );

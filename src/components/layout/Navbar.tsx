@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import Lenis from "lenis";
 import ChakraLogo from "@/components/brand/ChakraLogo";
@@ -15,6 +16,10 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const reduced = useReducedMotion();
+  const pathname = usePathname();
+  // Only the homepage has a full-height dark hero to sit transparently over;
+  // every other route uses the frosted bar from the top so it stays readable.
+  const isHome = pathname === "/";
   const hamburgerRef = useRef<HTMLButtonElement>(null);
   const wasOpen = useRef(false);
 
@@ -50,7 +55,7 @@ export default function Navbar() {
   }, [open]);
 
   // Single source of truth for the two appearance states.
-  const frosted = ALWAYS_TRANSLUCENT || scrolled;
+  const frosted = ALWAYS_TRANSLUCENT || !isHome || scrolled;
   // Light tint reads over the dark hero and over the open overlay.
   const lightTint = open || !frosted;
 
@@ -72,7 +77,7 @@ export default function Navbar() {
 
           {/* CENTER — brand */}
           <a
-            href="#home"
+            href="/#home"
             aria-label={`${site.name} — home`}
             onClick={() => setOpen(false)}
             className="group flex items-center justify-center gap-3 justify-self-center rounded focus-visible:outline focus-visible:outline-offset-4 focus-visible:outline-orange"

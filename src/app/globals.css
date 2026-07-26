@@ -167,19 +167,20 @@ html.lenis body {
   }
 }
 
-/* Hero — soft ripple sheen */
+/* Hero — soft water-ripple sheen (concentric rings emanating from bottom
+   centre + a warm glow), so the dark placeholder reads as rippling water. */
 .hero-ripple {
   background: radial-gradient(
       120% 80% at 50% 100%,
-      rgba(255, 85, 43, 0.18),
-      transparent 60%
+      rgba(255, 85, 43, 0.22),
+      transparent 62%
     ),
     repeating-radial-gradient(
-      circle at 50% 90%,
-      rgba(255, 255, 255, 0.05) 0px,
-      rgba(255, 255, 255, 0.05) 2px,
+      circle at 50% 92%,
+      rgba(255, 255, 255, 0.07) 0px,
+      rgba(255, 255, 255, 0.07) 2px,
       transparent 2px,
-      transparent 40px
+      transparent 34px
     );
   animation: ripple 12s ease-in-out infinite;
 }
@@ -193,6 +194,35 @@ html.lenis body {
     background-size: 110% 110%, 120% 120%;
     opacity: 0.5;
   }
+}
+
+/* Auto-scroll marquee — mission reels, Baba's exclusive images, etc.
+   The strip is a native horizontal scroller (JS advances scrollLeft each frame;
+   see MarqueeReel.tsx) so it is drag / swipe-able as well as auto-scrolling.
+   The mask fades both edges so tiles enter / leave without a hard clip line. */
+.marquee {
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 6%,
+    #000 94%,
+    transparent
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 6%,
+    #000 94%,
+    transparent
+  );
+}
+/* Hide the native scrollbar without losing scrollability. */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }
 
 /* Quote band — leaf sway */

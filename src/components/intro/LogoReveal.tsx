@@ -90,23 +90,25 @@ export default function LogoReveal() {
   return (
     <div
       ref={root}
-      className="relative flex h-full w-full items-center justify-center overflow-hidden bg-[#1a0700]"
+      className="relative flex h-full w-full items-center justify-center overflow-hidden bg-[rgba(240,229,208,0.82)] backdrop-blur-xl"
     >
-      {/* radial glow + faint lotus pattern backdrop */}
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_45%,rgba(255,85,43,0.22),transparent_60%)]" />
+      {/* soft warm glow on the beige backdrop */}
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_45%,rgba(255,85,43,0.16),transparent_62%)]" />
       <div
-        className="chakra-glow pointer-events-none absolute left-1/2 top-1/2 h-[46vmin] w-[46vmin] -translate-x-1/2 -translate-y-1/2 rounded-full bg-orange/25 blur-[70px]"
+        className="chakra-glow pointer-events-none absolute left-1/2 top-1/2 h-[46vmin] w-[46vmin] -translate-x-1/2 -translate-y-1/2 rounded-full bg-orange/20 blur-[80px]"
       />
 
       {/* corner vines */}
-      <LotusVine className="intro-vine pointer-events-none absolute -left-10 top-6 w-[38vmin] rotate-[8deg] opacity-70" />
-      <LotusVine className="intro-vine pointer-events-none absolute -right-10 bottom-6 w-[38vmin] rotate-188 opacity-70" />
+      <LotusVine className="intro-vine pointer-events-none absolute -left-10 top-6 w-[38vmin] rotate-[8deg] opacity-40" />
+      <LotusVine className="intro-vine pointer-events-none absolute -right-10 bottom-6 w-[38vmin] rotate-188 opacity-40" />
 
-      <div className="relative flex flex-col items-center">
+      {/* Logo + wordmark share one centred column and one max-width so the text
+          aligns to the logo instead of floating loose beneath it. */}
+      <div className="relative flex w-[min(88vw,42vmin)] flex-col items-center text-center">
         <div className="chakra-wheel text-orange">
-          <ChakraLogo className="h-[42vmin] w-[42vmin] drop-shadow-[0_0_30px_rgba(255,85,43,0.35)]" />
+          <ChakraLogo className="h-[42vmin] w-[42vmin] drop-shadow-[0_0_28px_rgba(255,85,43,0.28)]" />
         </div>
-        <p className="intro-label mt-8 text-center font-serif text-[clamp(1.4rem,3.4vw,2.6rem)] tracking-[0.12em] text-ivory">
+        <p className="intro-label mt-7 w-full text-balance font-serif text-[clamp(1.35rem,3.2vw,2.4rem)] font-medium leading-tight tracking-[0.14em] text-maroon">
           Swami Debananda Ashram
         </p>
       </div>
