@@ -14,7 +14,13 @@
  * layout / page shell, NOT here, because their order never changes.
  */
 
-import { ph, centralAddress, ashramBranches, organization } from "./site";
+import {
+  ph,
+  centralAddress,
+  ashramBranches,
+  organization,
+  sakhaSection,
+} from "./site";
 
 // ------------------------------------------------------------------ //
 // Shared types                                                        //
@@ -63,7 +69,21 @@ export interface LegalModule extends BaseModule {
   documents: { id: string; title: string; blurb: string; href: string }[];
 }
 
-export type HomeModule = CardsModule | ContactModule | LegalModule;
+/**
+ * "Sakha Ashrams" — the pinned right→left horizontal-scroll section.
+ * Its cards come straight from `ashrams` in site.ts (add an ashram there and
+ * it appears here AND at /ashrams/[slug] automatically), so this entry only
+ * carries the section's position in the page order.
+ */
+export interface SakhaModule extends BaseModule {
+  kind: "sakha";
+}
+
+export type HomeModule =
+  | CardsModule
+  | ContactModule
+  | LegalModule
+  | SakhaModule;
 
 // ------------------------------------------------------------------ //
 // The registry                                                        //
@@ -91,6 +111,20 @@ export const homeModules: HomeModule[] = [
       href: `/organization/${o.slug}`,
       img: o.img,
     })),
+  },
+
+  // 4.5 — Sakha Ashrams  (PRIORITY — built). Sits immediately after the
+  //       Organization Overview; the fractional order keeps 5–15 untouched.
+  {
+    kind: "sakha",
+    id: sakhaSection.id,
+    order: 4.5,
+    enabled: true,
+    navLabel: "Sakha Ashrams",
+    eyebrow: sakhaSection.eyebrow,
+    heading: sakhaSection.heading,
+    intro: sakhaSection.intro,
+    bg: "cream",
   },
 
   // 5 — Spiritual Content            (scaffolded, disabled — flip to build)

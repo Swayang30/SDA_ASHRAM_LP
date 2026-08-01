@@ -5,7 +5,6 @@ import { site } from "@/data/site";
 import SmoothScroll from "@/components/layout/SmoothScroll";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import CustomCursor from "@/components/layout/CustomCursor";
 import IntroGate from "@/components/intro/IntroGate";
 
 export const metadata: Metadata = {
@@ -63,7 +62,6 @@ export default function RootLayout({
         />
         <SmoothScroll>
           <IntroGate />
-          <CustomCursor />
           <Navbar />
           <main>{children}</main>
           <Footer />

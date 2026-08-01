@@ -38,30 +38,9 @@ export interface NavItem {
   children?: { label: string; href: string }[];
 }
 
-// Route-aware hrefs: a leading "/#id" jumps to a homepage section from ANY
-// route; a bare "/path" is a full page. Reordering the homepage modules in
-// `modules.ts` does not break these — the anchor ids are stable.
-export const nav: NavItem[] = [
-  { label: "Home", href: "/#home" },
-  { label: "Divine Message", href: "/divine-message" },
-  {
-    label: "Organization",
-    href: "/organization",
-    children: [
-      { label: "About the Organization", href: "/organization/about" },
-      { label: "Leadership — About Gurudev", href: "/organization/leadership" },
-      { label: "Governance", href: "/organization/governance" },
-    ],
-  },
-  {
-    label: "Contact",
-    href: "/#contact",
-    children: [
-      { label: "Our Ashrams", href: "/contact/ashrams" },
-      { label: "Name Registration", href: "/contact/register" },
-    ],
-  },
-];
+// The `nav` array itself lives at the FOOT of this file: its "Our Work"
+// children are derived from `programs`, which is declared further down, and a
+// module-level const cannot read a binding declared after it.
 
 // ------------------------------------------------------------------ //
 // Hero                                                                //
@@ -80,26 +59,382 @@ export const hero = {
 };
 
 // ------------------------------------------------------------------ //
-// Mission activity reels + images — the landing-page auto-scroll strip //
+// Hero slider — the full-viewport auto-advancing landing carousel.    //
+// Slide 1 is the original hero; slide 2 is the ashram reel that used  //
+// to play as intro phase 2. Add a slide by appending to this array —  //
+// the dots, prev/next and autoplay all derive from its length.        //
+// ------------------------------------------------------------------ //
+/**
+ * A discriminated union on purpose: a `reel` slide has NO copy fields at all,
+ * so headline / eyebrow / body / CTA text cannot leak back onto it by accident
+ * — the reel slide is a purely visual media surface.
+ */
+interface HeroSlideBase {
+  id: string;
+  /** Short label announced to screen readers for the dot + slide controls. */
+  navLabel: string;
+}
+
+export interface HeroStillSlide extends HeroSlideBase {
+  kind: "still";
+  eyebrow?: string;
+  headline: string;
+  body?: string;
+  /** Background still, ken-burns drifted. */
+  image: string;
+  /** Optional muted looping background reel. Falls back to `image` if absent. */
+  video?: string;
+  ctas: {
+    label: string;
+    href: string;
+    variant: "white" | "outline-white" | "orange";
+  }[];
+}
+
+export interface HeroReelSlide extends HeroSlideBase {
+  kind: "reel";
+  /**
+   * Optional poster still shown before/instead of the video (and always, under
+   * `prefers-reduced-motion`). Left undefined while art is pending so the slide
+   * falls back to the wordless brand gradient — a labelled placeholder image
+   * would put text back on a slide that must carry none.
+   * TODO: add the real 16:9 poster frame here.
+   */
+  poster?: string;
+  /** TODO: drop the real reel at public/video/intro-reel.mp4 — one-line swap. */
+  video: string;
+}
+
+export type HeroSlide = HeroStillSlide | HeroReelSlide;
+
+export const heroSlides: HeroSlide[] = [
+  {
+    id: "welcome",
+    kind: "still",
+    headline: "Build a heart that can touch all other hearts.",
+    navLabel: "Welcome",
+    // TODO: replace with the real dark water-ripple footage/still.
+    image: ph(1920, 1080, "Water Ripple — replace with ashram footage", "2c1810", "ff8a5b"),
+    video: "/video/hero-ripple.mp4",
+    ctas: [
+      { label: "Enter site", href: "#divine", variant: "white" },
+      { label: "Learn more", href: "#organization", variant: "outline-white" },
+    ],
+  },
+  {
+    // Reel slide — no copy, no CTA, no placeholder lettering. Just the film.
+    id: "ashram-reel",
+    kind: "reel",
+    navLabel: "Ashram film",
+    video: "/video/intro-reel.mp4",
+  },
+];
+
+/** Autoplay cadence + crossfade for the hero slider (ms / s). */
+export const heroSliderConfig = {
+  AUTOPLAY_MS: 5600,
+  FADE_S: 1.1,
+};
+
+// ------------------------------------------------------------------ //
+// Mission activity reels + images — the standalone motion band that   //
+// sits immediately below the hero slider.                             //
 // TODO: replace each `img` with a real reel thumbnail / photograph.    //
 // A `video` (optional) can later turn a tile into an inline reel.      //
 // ------------------------------------------------------------------ //
-export interface ReelItem {
+export const missionBand = {
+  eyebrow: "Our mission in motion",
+  heading: { lead: "Seva", accent: "in motion" },
+  // TODO: adjust freely — these are the ashram's programmes, not films.
+  intro:
+    "Education, healthcare, companionship and elder care — the ashram's daily work.",
+};
+
+// ------------------------------------------------------------------ //
+// Programmes — the ashram's real, ongoing work. One source of truth    //
+// for the mission-band cards AND the /programs/[slug] detail pages.    //
+// Add a programme here and it appears in both places automatically.    //
+// TODO: every string/image below is a placeholder — replace with the   //
+// real copy, figures and photography.                                  //
+// ------------------------------------------------------------------ //
+export interface ProgramSection {
   id: string;
-  label: string;
-  img: string;
+  heading: string;
+  body?: string;
+  bullets?: string[];
+  type?: "text" | "gallery" | "stats";
+  images?: string[];
+  /** Figure blocks for `type: "stats"` sections. */
+  stats?: { value: string; label: string }[];
 }
 
-export const missionReels: ReelItem[] = [
-  { id: "r1", label: "Anna Daan", img: ph(640, 800, "Anna Daan Reel", "541100") },
-  { id: "r2", label: "Meditation", img: ph(640, 800, "Meditation Reel", "744012") },
-  { id: "r3", label: "Healthcare Camp", img: ph(640, 800, "Healthcare Reel", "48342b") },
-  { id: "r4", label: "Namgaan & Kirtan", img: ph(640, 800, "Kirtan Reel", "6a3410") },
-  { id: "r5", label: "Elder Care", img: ph(640, 800, "Elder Care Reel", "541100") },
-  { id: "r6", label: "Vedic Education", img: ph(640, 800, "Education Reel", "744012") },
-  { id: "r7", label: "Festivals", img: ph(640, 800, "Festival Reel", "48342b") },
-  { id: "r8", label: "Seva", img: ph(640, 800, "Seva Reel", "6a3410") },
+export interface ProgramItem {
+  slug: string;
+  title: string;
+  /** The scope line shown under the title on the card and page. */
+  subtitle?: string;
+  /** 1–2 sentence intro used on the card and the page hero. */
+  summary: string;
+  thumbnail: string;
+  hero?: string;
+  gallery: string[];
+  sections: ProgramSection[];
+}
+
+const programGallery = (label: string) => [
+  ph(640, 800, `${label} 01`, "541100"),
+  ph(640, 800, `${label} 02`, "744012"),
+  ph(640, 800, `${label} 03`, "48342b"),
+  ph(640, 800, `${label} 04`, "6a3410"),
+  ph(640, 800, `${label} 05`, "541100"),
 ];
+
+export const programs: ProgramItem[] = [
+  {
+    slug: "education",
+    title: "Education",
+    subtitle: "School, extracurricular activities",
+    summary:
+      "A free school and a full programme of extracurricular activities, so that no child in the ashram's care is turned away from learning.", // TODO
+    thumbnail: ph(600, 800, "Education", "541100"),
+    hero: ph(1600, 900, "Education", "541100"),
+    gallery: programGallery("Education"),
+    sections: [
+      {
+        id: "overview",
+        heading: "Overview",
+        body: "TODO — describe the ashram's approach to education: who it serves, when it began, and what it aims to change. Two or three sentences of real copy will sit comfortably here.",
+      },
+      {
+        id: "the-school",
+        heading: "The School",
+        body: "TODO — the school itself: classes offered, teaching staff, timings, medium of instruction and fees (if any).",
+        bullets: [
+          "TODO — classes and age groups covered",
+          "TODO — teaching staff and student ratio",
+          "TODO — medium of instruction",
+          "TODO — books, uniforms and meals provided",
+        ],
+      },
+      {
+        id: "extracurricular",
+        heading: "Extracurricular Activities",
+        body: "TODO — what happens beyond the syllabus: music, sport, art, scripture study, competitions and annual day.",
+        bullets: [
+          "TODO — music and devotional singing",
+          "TODO — sport and physical training",
+          "TODO — art and craft",
+          "TODO — scripture and value education",
+        ],
+      },
+      {
+        id: "students-reach",
+        heading: "Students & Reach",
+        type: "stats",
+        body: "TODO — a short line framing the figures below.",
+        stats: [
+          { value: "000", label: "Students enrolled" }, // TODO
+          { value: "00", label: "Teachers" }, // TODO
+          { value: "00", label: "Villages served" }, // TODO
+          { value: "0000", label: "Alumni since inception" }, // TODO
+        ],
+      },
+      {
+        id: "gallery",
+        heading: "Gallery",
+        type: "gallery",
+        body: "TODO — replace these placeholders with photographs from the school.",
+        images: programGallery("Education"),
+      },
+    ],
+  },
+  {
+    slug: "healthcare",
+    title: "Healthcare Activities",
+    subtitle: "Eye day care, medical camp, blood donation camp, chikitsalaya",
+    summary:
+      "Free eye care, medical and blood donation camps, and a standing chikitsalaya serving the villages around the ashram.", // TODO
+    thumbnail: ph(600, 800, "Healthcare", "744012"),
+    hero: ph(1600, 900, "Healthcare", "744012"),
+    gallery: programGallery("Healthcare"),
+    sections: [
+      {
+        id: "overview",
+        heading: "Overview",
+        body: "TODO — the shape of the ashram's healthcare seva: what is offered, to whom, and how it is funded and staffed.",
+      },
+      {
+        id: "eye-day-care",
+        heading: "Eye Day Care",
+        body: "TODO — the eye day care unit: screening, cataract surgery referrals, spectacles and follow-up.",
+        bullets: [
+          "TODO — screening schedule",
+          "TODO — surgeries facilitated per year",
+          "TODO — partner hospitals and doctors",
+        ],
+      },
+      {
+        id: "medical-camp",
+        heading: "Medical Camp",
+        body: "TODO — general medical camps: frequency, specialities covered, medicines dispensed and villages reached.",
+      },
+      {
+        id: "blood-donation-camp",
+        heading: "Blood Donation Camp",
+        body: "TODO — the blood donation drive: how often it runs, partner blood banks, and how devotees can register.",
+      },
+      {
+        id: "chikitsalaya",
+        heading: "Chikitsalaya",
+        body: "TODO — the standing dispensary at the ashram: opening hours, resident practitioners and the treatments available.",
+      },
+      {
+        id: "gallery",
+        heading: "Gallery",
+        type: "gallery",
+        body: "TODO — replace these placeholders with photographs from the camps and the chikitsalaya.",
+        images: programGallery("Healthcare"),
+      },
+    ],
+  },
+  {
+    slug: "sathe-achi",
+    title: "Sathe Achi",
+    subtitle: "TODO — short line describing Sathe Achi",
+    summary:
+      "TODO — one or two sentences introducing Sathe Achi: what the programme is and whom it stands beside.",
+    thumbnail: ph(600, 800, "Sathe Achi", "48342b"),
+    hero: ph(1600, 900, "Sathe Achi", "48342b"),
+    gallery: programGallery("Sathe Achi"),
+    sections: [
+      {
+        id: "overview",
+        heading: "Overview",
+        body: "TODO — introduce Sathe Achi: its origin, its name's meaning, and the need it answers.",
+      },
+      {
+        id: "what-we-do",
+        heading: "What We Do",
+        body: "TODO — the actual work carried out under this programme.",
+        bullets: [
+          "TODO — activity one",
+          "TODO — activity two",
+          "TODO — activity three",
+        ],
+      },
+      {
+        id: "who-we-serve",
+        heading: "Who We Serve",
+        body: "TODO — the people this programme reaches, and the areas it covers.",
+      },
+      {
+        id: "how-to-take-part",
+        heading: "How to Take Part",
+        body: "TODO — how devotees and volunteers can join, donate or refer someone in need.",
+      },
+      {
+        id: "gallery",
+        heading: "Gallery",
+        type: "gallery",
+        body: "TODO — replace these placeholders with real photographs.",
+        images: programGallery("Sathe Achi"),
+      },
+    ],
+  },
+  {
+    slug: "pashe-achi",
+    title: "Pashe Achi",
+    subtitle: "TODO — short line describing Pashe Achi",
+    summary:
+      "TODO — one or two sentences introducing Pashe Achi: what the programme is and whom it supports.",
+    thumbnail: ph(600, 800, "Pashe Achi", "6a3410"),
+    hero: ph(1600, 900, "Pashe Achi", "6a3410"),
+    gallery: programGallery("Pashe Achi"),
+    sections: [
+      {
+        id: "overview",
+        heading: "Overview",
+        body: "TODO — introduce Pashe Achi: its origin, its name's meaning, and the need it answers.",
+      },
+      {
+        id: "what-we-do",
+        heading: "What We Do",
+        body: "TODO — the actual work carried out under this programme.",
+        bullets: [
+          "TODO — activity one",
+          "TODO — activity two",
+          "TODO — activity three",
+        ],
+      },
+      {
+        id: "who-we-serve",
+        heading: "Who We Serve",
+        body: "TODO — the people this programme reaches, and the areas it covers.",
+      },
+      {
+        id: "how-to-take-part",
+        heading: "How to Take Part",
+        body: "TODO — how devotees and volunteers can join, donate or refer someone in need.",
+      },
+      {
+        id: "gallery",
+        heading: "Gallery",
+        type: "gallery",
+        body: "TODO — replace these placeholders with real photographs.",
+        images: programGallery("Pashe Achi"),
+      },
+    ],
+  },
+  {
+    slug: "old-age-home",
+    title: "Old Age Home",
+    subtitle: "TODO — short line describing the old age home",
+    summary:
+      "A loving home for elders — shelter, healthcare, companionship and spiritual care, so every senior lives their final years in dignity.", // TODO
+    thumbnail: ph(600, 800, "Old Age Home", "541100"),
+    hero: ph(1600, 900, "Old Age Home", "541100"),
+    gallery: programGallery("Old Age Home"),
+    sections: [
+      {
+        id: "overview",
+        heading: "Overview",
+        body: "TODO — the old age home's purpose, when it opened, how many residents it houses and how it is run.",
+      },
+      {
+        id: "facilities",
+        heading: "Facilities",
+        body: "TODO — accommodation, meals, medical support and the prayer hall.",
+        bullets: [
+          "TODO — rooms and accommodation",
+          "TODO — meals and diet",
+          "TODO — on-call medical support",
+          "TODO — prayer and recreation spaces",
+        ],
+      },
+      {
+        id: "daily-life",
+        heading: "Daily Life",
+        body: "TODO — a day in the home: morning prayer, meals, activities, visits and evening aarti.",
+      },
+      {
+        id: "admissions-support",
+        heading: "Admissions & Support",
+        body: "TODO — who is eligible, how to apply, what it costs, and how donors can sponsor a resident.",
+      },
+      {
+        id: "gallery",
+        heading: "Gallery",
+        type: "gallery",
+        body: "TODO — replace these placeholders with photographs from the home.",
+        images: programGallery("Old Age Home"),
+      },
+    ],
+  },
+];
+
+export const programBySlug: Record<string, ProgramItem> = Object.fromEntries(
+  programs.map((p) => [p.slug, p])
+);
 
 // ------------------------------------------------------------------ //
 // Events & Highlights                                                 //
@@ -230,16 +565,41 @@ export const founder = {
 //   text (heading+body) · list (bulleted) · timeline · gallery         //
 // TODO: replace all copy + images with the real content.               //
 // ------------------------------------------------------------------ //
-export type OrgSectionType = "text" | "list" | "timeline" | "gallery";
+export type OrgSectionType = "text" | "list" | "timeline" | "gallery" | "stats";
+
+/** A sub-block inside a section — lets one section hold several sub-headings,
+ *  paragraph runs and bullet lists so dense pages don't feel sparse. */
+export interface OrgBlock {
+  subheading?: string;
+  body?: string[];
+  list?: string[];
+}
+
+/** An image + text row — alternate `side` down a page for editorial rhythm. */
+export interface OrgMedia {
+  img: string;
+  alt: string;
+  caption?: string;
+  side?: "left" | "right"; // image side on desktop; defaults to "right"
+  body?: string[];
+}
 
 export interface OrgSection {
   id: string; // anchor + side-menu key
   heading: string;
   type?: OrgSectionType; // defaults to "text"
+  /** Short standfirst set just under the heading, before the body. */
+  lead?: string;
   body?: string[];
   list?: string[];
   timeline?: { year: string; title: string; text?: string }[];
   gallery?: { id: string; label: string; img: string }[];
+  /** Figure blocks — big numeral over a caption. */
+  stats?: { value: string; label: string }[];
+  /** Sub-headed blocks, rendered after `body`. */
+  blocks?: OrgBlock[];
+  /** Image + text rows, rendered after `blocks`. */
+  media?: OrgMedia[];
 }
 
 export interface OrgItem {
@@ -592,6 +952,8 @@ export interface AshramBranch {
   address: string;
   phone?: string;
   email?: string;
+  /** Slug of the matching `ashrams[]` entry — drives the card's detail link. */
+  ashramSlug?: string;
 }
 
 export const centralAddress: AshramBranch = {
@@ -601,6 +963,7 @@ export const centralAddress: AshramBranch = {
   address: "Krishnapur, Nadia, West Bengal 741101, India",
   phone: "+91 00000 00000",
   email: "info@swamidebanandaashram.org",
+  ashramSlug: "central-office",
 };
 
 export const ashramBranches: AshramBranch[] = [
@@ -611,6 +974,7 @@ export const ashramBranches: AshramBranch[] = [
     address: "Krishnapur, Nadia, West Bengal 741101, India",
     phone: "+91 00000 00001",
     email: "krishnapur@swamidebanandaashram.org",
+    ashramSlug: "krishnapur-nadia",
   },
   {
     id: "bardhaman",
@@ -619,6 +983,7 @@ export const ashramBranches: AshramBranch[] = [
     address: "Bardhaman, West Bengal, India",
     phone: "+91 00000 00002",
     email: "bardhaman@swamidebanandaashram.org",
+    ashramSlug: "bardhaman",
   },
   {
     id: "kolkata",
@@ -627,12 +992,174 @@ export const ashramBranches: AshramBranch[] = [
     address: "Kolkata, West Bengal, India",
     phone: "+91 00000 00003",
     email: "kolkata@swamidebanandaashram.org",
+    ashramSlug: "kolkata",
   },
 ];
 
 // ------------------------------------------------------------------ //
+// Sakha Ashrams — our ashrams in different places.                    //
+// Feeds BOTH the homepage pinned horizontal-scroll section AND the    //
+// /ashrams/[slug] detail pages, so the two can never drift apart.     //
+// The model is deliberately extensible: add a field here and surface  //
+// it in the card / detail page without touching any other data file.  //
+// TODO: every value below is a placeholder — replace with real data.  //
+// ------------------------------------------------------------------ //
+export interface AshramItem {
+  slug: string;
+  name: string;
+  /** "Head Office" / "Main Ashram" / "Branch" — shown as the card eyebrow. */
+  role: string;
+  location: string;
+  establishedYear: string;
+  phone: string;
+  residentSadhus: number;
+  headSadhu: string;
+  /** Small scrollable strip on the card + the detail-page gallery. */
+  gallery: string[];
+  // ---- optional, additive fields (safe to omit) ----
+  email?: string;
+  address?: string;
+  blurb?: string;
+  card?: string; // card cover image
+  hero?: string; // detail-page hero image
+  /** Free-form extra facts rendered in the detail page's key-facts block. */
+  facts?: { label: string; value: string }[];
+  /** Long-form content, rendered with the shared detail typography. */
+  sections?: OrgSection[];
+}
+
+const ashramGallery = (name: string) => [
+  ph(640, 800, `${name} 01`, "541100"),
+  ph(640, 800, `${name} 02`, "744012"),
+  ph(640, 800, `${name} 03`, "48342b"),
+  ph(640, 800, `${name} 04`, "6a3410"),
+];
+
+export const ashrams: AshramItem[] = [
+  {
+    slug: "central-office",
+    name: "Swami Debananda Ashram — Central Office",
+    role: "Head Office",
+    location: "Krishnapur, Nadia, West Bengal",
+    establishedYear: "1996", // TODO
+    phone: "+91 00000 00000", // TODO
+    email: "info@swamidebanandaashram.org", // TODO
+    address: "Krishnapur, Nadia, West Bengal 741101, India", // TODO
+    residentSadhus: 24, // TODO
+    headSadhu: "Swami Debananda Maharaj", // TODO
+    blurb:
+      "The founding hermitage and the administrative heart of the sangha — where the daily yajna, the old age home and the central office all sit on one campus.", // TODO
+    card: ph(900, 1100, "Central Office", "541100"),
+    hero: ph(1600, 900, "Central Office", "541100"),
+    gallery: ashramGallery("Central Office"),
+  },
+  {
+    slug: "krishnapur-nadia",
+    name: "Krishnapur Nadia Ashram",
+    role: "Main Ashram",
+    location: "Krishnapur, Nadia, West Bengal",
+    establishedYear: "1996", // TODO
+    phone: "+91 00000 00001", // TODO
+    email: "krishnapur@swamidebanandaashram.org", // TODO
+    address: "Krishnapur, Nadia, West Bengal 741101, India", // TODO
+    residentSadhus: 32, // TODO
+    headSadhu: "Swami Premananda Maharaj", // TODO
+    blurb:
+      "The main ashram — meditation hall, temple, elder care and the yearly Guru Purnima gathering.", // TODO
+    card: ph(900, 1100, "Krishnapur Nadia", "744012"),
+    hero: ph(1600, 900, "Krishnapur Nadia", "744012"),
+    gallery: ashramGallery("Krishnapur"),
+  },
+  {
+    slug: "bardhaman",
+    name: "Bardhaman Ashram",
+    role: "Branch",
+    location: "Bardhaman, West Bengal",
+    establishedYear: "2004", // TODO
+    phone: "+91 00000 00002", // TODO
+    email: "bardhaman@swamidebanandaashram.org", // TODO
+    address: "Bardhaman, West Bengal, India", // TODO
+    residentSadhus: 14, // TODO
+    headSadhu: "Swami Jnanananda Maharaj", // TODO
+    blurb:
+      "A branch ashram serving the surrounding villages with free healthcare camps and anna daan.", // TODO
+    card: ph(900, 1100, "Bardhaman", "48342b"),
+    hero: ph(1600, 900, "Bardhaman", "48342b"),
+    gallery: ashramGallery("Bardhaman"),
+  },
+  {
+    slug: "kolkata",
+    name: "Kolkata Centre",
+    role: "Branch",
+    location: "Kolkata, West Bengal",
+    establishedYear: "2009", // TODO
+    phone: "+91 00000 00003", // TODO
+    email: "kolkata@swamidebanandaashram.org", // TODO
+    address: "Kolkata, West Bengal, India", // TODO
+    residentSadhus: 9, // TODO
+    headSadhu: "Swami Shantananda Maharaj", // TODO
+    blurb:
+      "The city centre — weekly satsang, spiritual discussions and the publications desk.", // TODO
+    card: ph(900, 1100, "Kolkata Centre", "6a3410"),
+    hero: ph(1600, 900, "Kolkata Centre", "6a3410"),
+    gallery: ashramGallery("Kolkata"),
+  },
+  {
+    slug: "puri", // TODO placeholder ashram
+    name: "Puri Ashram",
+    role: "Branch",
+    location: "Puri, Odisha",
+    establishedYear: "2013", // TODO
+    phone: "+91 00000 00004", // TODO
+    residentSadhus: 7, // TODO
+    headSadhu: "Swami Nityananda Maharaj", // TODO
+    blurb:
+      "A seaside retreat for extended sadhana and pilgrim hospitality.", // TODO
+    card: ph(900, 1100, "Puri Ashram", "541100"),
+    hero: ph(1600, 900, "Puri Ashram", "541100"),
+    gallery: ashramGallery("Puri"),
+  },
+  {
+    slug: "varanasi", // TODO placeholder ashram
+    name: "Varanasi Ashram",
+    role: "Branch",
+    location: "Varanasi, Uttar Pradesh",
+    establishedYear: "2017", // TODO
+    phone: "+91 00000 00005", // TODO
+    residentSadhus: 11, // TODO
+    headSadhu: "Swami Chidananda Maharaj", // TODO
+    blurb:
+      "Vedic education and the study of the Master's literary works, beside the Ganga.", // TODO
+    card: ph(900, 1100, "Varanasi Ashram", "744012"),
+    hero: ph(1600, 900, "Varanasi Ashram", "744012"),
+    gallery: ashramGallery("Varanasi"),
+  },
+];
+
+export const ashramBySlug: Record<string, AshramItem> = Object.fromEntries(
+  ashrams.map((a) => [a.slug, a])
+);
+
+/** Homepage §"Sakha Ashrams" — the pinned horizontal-scroll section. */
+export const sakhaSection = {
+  id: "sakha-ashrams",
+  eyebrow: "Across the map",
+  heading: { lead: "Sakha", accent: "Ashrams" },
+  intro:
+    "Our ashrams in different places — each a home for sadhana and seva. Scroll to travel between them.",
+};
+
+// ------------------------------------------------------------------ //
 // Footer                                                              //
 // ------------------------------------------------------------------ //
+/** Social profiles — shown in the menu panel's footer block.
+ *  TODO: replace every `href` with the ashram's real profile URL. */
+export const social: { label: string; href: string }[] = [
+  { label: "Facebook", href: "#" },
+  { label: "YouTube", href: "#" },
+  { label: "Instagram", href: "#" },
+];
+
 export const footer = {
   wordmark: "SWAMI DEBANANDA ASHRAM",
   newsletter: {
@@ -664,9 +1191,48 @@ export const footer = {
   copyright: "© 2025 Swami Debananda Ashram. All rights reserved.",
 };
 
+/** The intro is the logo shutter only — the ashram film lives in the hero
+ *  slider now, so there is no phase-2 video config here any more. */
 export const introConfig = {
   LOGO_MS: 10000,
-  VIDEO_MAX_MS: 30000,
-  video: "/video/intro-reel.mp4",
-  poster: ph(1920, 1080, "Ashram+Reel", "1a0a00", "ff552b"),
 };
+
+// ------------------------------------------------------------------ //
+// Navigation — TODO: confirm real menu labels with client.            //
+// Declared LAST because "Our Work" derives its children from          //
+// `programs` above. Route-aware hrefs: a leading "/#id" jumps to a     //
+// homepage section from ANY route; a bare "/path" is a full page.      //
+// Reordering the homepage modules in `modules.ts` does not break these //
+// — the anchor ids are stable.                                         //
+// ------------------------------------------------------------------ //
+export const nav: NavItem[] = [
+  { label: "Home", href: "/#home" },
+  { label: "Divine Message", href: "/divine-message" },
+  {
+    label: "Organization",
+    href: "/organization",
+    children: [
+      { label: "About the Organization", href: "/organization/about" },
+      { label: "Leadership — About Gurudev", href: "/organization/leadership" },
+      { label: "Governance", href: "/organization/governance" },
+    ],
+  },
+  {
+    label: "Our Work",
+    href: "/#mission",
+    // Derived from `programs` so adding a programme adds a menu entry.
+    children: programs.map((p) => ({
+      label: p.title,
+      href: `/programs/${p.slug}`,
+    })),
+  },
+  {
+    label: "Contact",
+    href: "/#contact",
+    children: [
+      { label: "Sakha Ashrams", href: "/#sakha-ashrams" },
+      { label: "Our Ashrams", href: "/contact/ashrams" },
+      { label: "Name Registration", href: "/contact/register" },
+    ],
+  },
+];

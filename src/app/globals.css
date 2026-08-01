@@ -19,6 +19,10 @@
   --font-serif: var(--font-playfair), "Cormorant Garamond", Georgia, serif;
   --font-script: var(--font-pinyon), "Parisienne", cursive;
   --font-sans: var(--font-poppins), "Inter", system-ui, sans-serif;
+  /* Devanagari — the chakra mantra. The Latin serif has no Devanagari
+     coverage, so conjuncts/matras need a real Devanagari face. */
+  --font-devanagari: var(--font-devanagari-noto), "Noto Serif Devanagari",
+    "Noto Sans Devanagari", serif;
 
   /* Layout */
   --container-site: 1440px;
@@ -52,6 +56,20 @@ body {
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   overflow-x: hidden;
+  /* See --scrollbar-lock below. */
+  padding-right: var(--scrollbar-lock, 0px);
+}
+
+/* Scroll-lock compensation (menu panel).
+   Locking body scroll removes the classic scrollbar, which widens the layout
+   viewport and slides the whole page sideways by the scrollbar's width. While
+   the panel is open, Navbar measures that width into `--scrollbar-lock` on
+   <html>; body and the fixed header pad by it so nothing moves. `position:
+   fixed` boxes ignore body padding, so the panel itself still sits flush
+   against the true right edge — which `scrollbar-gutter: stable` would NOT
+   allow (it keeps the gutter reserved, leaving a dead strip beside the panel). */
+.lock-compensate {
+  padding-right: var(--scrollbar-lock, 0px);
 }
 
 /* Lenis */
@@ -131,24 +149,6 @@ html.lenis body {
   );
 }
 
-/* Custom cursor targets */
-@media (hover: hover) and (pointer: fine) {
-  body.has-custom-cursor {
-    cursor: none;
-  }
-  body.has-custom-cursor a,
-  body.has-custom-cursor button {
-    cursor: none;
-  }
-}
-.cursor-ring.cursor-grow {
-  width: 3rem;
-  height: 3rem;
-  margin-left: -1.5rem;
-  margin-top: -1.5rem;
-  background-color: color-mix(in srgb, var(--color-orange) 12%, transparent);
-}
-
 /* ------------------------------------------------------------------ *
  *  Keyframe animations
  * ------------------------------------------------------------------ */
@@ -223,6 +223,33 @@ html.lenis body {
 }
 .no-scrollbar::-webkit-scrollbar {
   display: none;
+}
+
+/* Hero reel slide — the wordless placeholder surface. A slow warm breathe so
+   the panel reads as film rather than a flat block. Opacity only (GPU-cheap),
+   and the reduced-motion block below stops it entirely. */
+.hero-reel-glow {
+  background:
+    radial-gradient(
+      60% 55% at 50% 45%,
+      color-mix(in srgb, var(--color-orange) 20%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      80% 70% at 20% 80%,
+      color-mix(in srgb, var(--color-gold) 14%, transparent),
+      transparent 72%
+    );
+  animation: reel-breathe 9s ease-in-out infinite;
+}
+@keyframes reel-breathe {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 0.95;
+  }
 }
 
 /* Quote band — leaf sway */

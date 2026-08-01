@@ -14,6 +14,8 @@ interface SectionHeadingProps {
   /** Colour overrides for on-dark sections (Ashram / Footer). */
   leadClassName?: string;
   accentClassName?: string;
+  /** Heading level. Detail pages pass "h1" — one per page. */
+  as?: "h1" | "h2";
 }
 
 /**
@@ -28,6 +30,7 @@ export default function SectionHeading({
   align = "left",
   leadClassName = "heading-lead",
   accentClassName = "heading-accent",
+  as: Tag = "h2",
 }: SectionHeadingProps) {
   const sizeClass =
     size === "lg"
@@ -35,7 +38,7 @@ export default function SectionHeading({
       : "text-[clamp(1.9rem,4vw,3rem)]";
 
   return (
-    <h2
+    <Tag
       className={`font-serif font-medium tracking-tight ${sizeClass} ${
         align === "center" ? "text-center" : "text-left"
       } ${className}`}
@@ -57,6 +60,6 @@ export default function SectionHeading({
           </ScrollFloat>
         </>
       ) : null}
-    </h2>
+    </Tag>
   );
 }

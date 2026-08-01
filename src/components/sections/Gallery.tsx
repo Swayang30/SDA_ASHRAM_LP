@@ -29,7 +29,7 @@ export default function Gallery() {
             <button
               key={g.id}
               onClick={() => setActive(g)}
-              className="group relative block aspect-[3/4] w-full overflow-hidden rounded-2xl shadow-warm-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange"
+              className="group relative block aspect-3/4 w-full overflow-hidden rounded-2xl shadow-warm-sm focus-visible:outline focus-visible:outline-offset-2 focus-visible:outline-orange"
               aria-label={`View ${g.alt}`}
             >
               <Image
@@ -37,7 +37,7 @@ export default function Gallery() {
                 alt={g.alt}
                 fill
                 sizes="(max-width: 640px) 70vw, 300px"
-                className="object-cover grayscale transition-all duration-700 ease-[var(--ease-soft)] group-hover:scale-110 group-hover:grayscale-0"
+                className="object-cover grayscale transition-all duration-700 ease-soft group-hover:scale-110 group-hover:grayscale-0"
               />
               <span className="absolute inset-0 bg-maroon/10 opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
               <span className="absolute bottom-4 left-4 translate-y-3 font-serif text-lg text-white opacity-0 drop-shadow transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100">
@@ -52,7 +52,7 @@ export default function Gallery() {
       <AnimatePresence>
         {active && (
           <motion.div
-            className="fixed inset-0 z-[90] flex items-center justify-center bg-black/85 p-6 backdrop-blur-sm"
+            className="fixed inset-0 z-90 flex items-center justify-center bg-black/85 p-6 backdrop-blur-sm"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -67,7 +67,7 @@ export default function Gallery() {
               className="relative max-h-[85vh] w-full max-w-2xl overflow-hidden rounded-2xl"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="relative aspect-[3/4] w-full">
+              <div className="relative aspect-3/4 w-full">
                 <Image
                   src={active.src}
                   alt={active.alt}
@@ -76,7 +76,7 @@ export default function Gallery() {
                   className="object-cover"
                 />
               </div>
-              <p className="absolute bottom-0 w-full bg-gradient-to-t from-black/70 to-transparent p-5 font-serif text-lg text-white">
+              <p className="absolute bottom-0 w-full bg-linear-to-t from-black/70 to-transparent p-5 font-serif text-lg text-white">
                 {active.alt}
               </p>
             </motion.div>

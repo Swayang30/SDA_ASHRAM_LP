@@ -1,4 +1,9 @@
-import { Playfair_Display, Pinyon_Script, Poppins } from "next/font/google";
+import {
+  Playfair_Display,
+  Pinyon_Script,
+  Poppins,
+  Noto_Serif_Devanagari,
+} from "next/font/google";
 
 /**
  * Best-match Google fonts per the master brief §3.2.
@@ -27,4 +32,17 @@ export const poppins = Poppins({
   display: "swap",
 });
 
-export const fontVariables = `${playfair.variable} ${pinyon.variable} ${poppins.variable}`;
+/**
+ * Devanagari face for the chakra mantra "ॐ तत् त्वम् असि".
+ * The Latin serif has no Devanagari coverage, so conjuncts (त्व) and vowel
+ * signs (matras) fall back to a system font and render inconsistently — this
+ * pins them to a real Devanagari serif everywhere.
+ */
+export const notoDevanagari = Noto_Serif_Devanagari({
+  subsets: ["devanagari"],
+  weight: ["400", "500", "600"],
+  variable: "--font-devanagari-noto",
+  display: "swap",
+});
+
+export const fontVariables = `${playfair.variable} ${pinyon.variable} ${poppins.variable} ${notoDevanagari.variable}`;

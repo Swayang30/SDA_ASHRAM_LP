@@ -1,10 +1,12 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import SectionHeading from "@/components/ui/SectionHeading";
 import Reveal from "@/components/ui/Reveal";
 import { OverviewCard } from "@/components/sections/CardSection";
+import { ashramBySlug } from "@/data/site";
 import type { ContactModule } from "@/data/modules";
 
 const bgClass = {
@@ -16,6 +18,11 @@ const bgClass = {
 /** Homepage §14 — Contact: the central address plus cards (Ashrams, Register). */
 export default function ContactSection({ module }: { module: ContactModule }) {
   const a = module.address;
+  // Derived from the ashram data so this link can never drift out of sync with
+  // the Sakha section (§7) or the /ashrams/[slug] pages (§8).
+  const detail = a.ashramSlug ? ashramBySlug[a.ashramSlug] : undefined;
+  const href = detail ? `/ashrams/${detail.slug}` : undefined;
+
   return (
     <section
       id={module.id}
@@ -33,9 +40,14 @@ export default function ContactSection({ module }: { module: ContactModule }) {
         </div>
 
         <div className="grid gap-6 lg:grid-cols-2">
-          {/* central address + map */}
+          {/* central address + map — the whole card is a link to the ashram's
+              detail page (§5). The `after:` overlay makes the entire card the
+              hit area while the phone/email stay individually clickable. */}
           <Reveal>
-            <div className="flex h-full flex-col overflow-hidden rounded-2xl bg-white shadow-warm-sm">
+            <motion.div
+              whileHover={href ? { y: -6 } : undefined}
+              transition={{ type: "spring", stiffness: 260, damping: 22 }}
+              className="group relative flex h-full flex-col overflow-hidden rounded-2xl bg-white shadow-warm-sm transition-shadow duration-500 hover:shadow-warm has-[a:focus-visible]:outline has-[a:focus-visible]:outline-offset-2 has-[a:focus-visible]:outline-orange">
               <div className="relative h-56 overflow-hidden md:h-64">
                 <motion.div
                   className="absolute inset-0"
@@ -66,8 +78,21 @@ export default function ContactSection({ module }: { module: ContactModule }) {
                 <p className="font-sans text-xs uppercase tracking-[0.25em] text-orange">
                   {a.role ?? "Central Address"}
                 </p>
-                <h3 className="mt-2 font-serif text-2xl text-maroon">{a.name}</h3>
-                <address className="mt-4 space-y-2 font-sans text-sm not-italic text-cocoa/80">
+                <h3 className="mt-2 font-serif text-2xl text-maroon">
+                  {href ? (
+                    <Link
+                      href={href}
+                      aria-label={`${a.name} — view ashram details`}
+                      className="after:absolute after:inset-0 after:z-0 after:content-[''] focus-visible:outline-none"
+                    >
+                      {a.name}
+                    </Link>
+                  ) : (
+                    a.name
+                  )}
+                </h3>
+                {/* break-words: emails are single unbreakable tokens */}
+                <address className="relative z-10 mt-4 space-y-2 wrap-break-word font-sans text-sm not-italic text-cocoa/80">
                   <p>{a.address}</p>
                   {a.phone && (
                     <p>
@@ -86,8 +111,28 @@ export default function ContactSection({ module }: { module: ContactModule }) {
                     </p>
                   )}
                 </address>
+
+                {href && (
+                  <span className="mt-5 inline-flex items-center gap-2 font-sans text-sm font-medium text-orange">
+                    View ashram
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="transition-transform duration-300 group-hover:translate-x-1"
+                      aria-hidden
+                    >
+                      <path d="M5 12h14M13 6l6 6-6 6" />
+                    </svg>
+                  </span>
+                )}
               </div>
-            </div>
+            </motion.div>
           </Reveal>
 
           {/* the two cards: Ashrams + Name registration form */}
