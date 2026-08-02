@@ -18,10 +18,10 @@ export default function Ashram() {
       className="relative overflow-hidden bg-brown py-24 text-ivory md:py-32"
     >
       <div className="texture-diagonal absolute inset-0 opacity-50" aria-hidden />
-      <Parallax from={50} to={-50} className="pointer-events-none absolute right-0 top-6 w-[420px] opacity-40">
+      <Parallax from={50} to={-50} className="pointer-events-none absolute right-0 top-6 w-105 opacity-40">
         <LotusVine className="w-full" stroke="var(--color-gold)" />
       </Parallax>
-      <Parallax from={-40} to={40} className="pointer-events-none absolute -left-10 bottom-8 w-[360px] opacity-30">
+      <Parallax from={-40} to={40} className="pointer-events-none absolute -left-10 bottom-8 w-90 opacity-30">
         <LotusVine className="w-full rotate-180" stroke="var(--color-gold)" />
       </Parallax>
 
@@ -43,7 +43,7 @@ export default function Ashram() {
                 slideClassName="min-w-0 flex-[0_0_100%]"
                 counterClassName="!mt-4 justify-center"
                 slides={ashram.images.map((src, i) => (
-                  <div key={i} className="relative aspect-[5/4] w-full">
+                  <div key={i} className="relative aspect-5/4 w-full">
                     <Image
                       src={src}
                       alt={`Ashram view ${i + 1}`}

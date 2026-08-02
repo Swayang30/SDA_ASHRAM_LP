@@ -35,7 +35,7 @@ export function OverviewCard({ card }: { card: CardLink }) {
             sizes="(max-width: 768px) 80vw, 360px"
             className="object-cover transition-transform duration-700 ease-soft group-hover:scale-110"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-maroon/60 via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-linear-to-t from-maroon/60 via-transparent to-transparent" />
           {card.script && (
             <span className="absolute left-4 top-4 font-script text-2xl text-white drop-shadow">
               {card.script}
