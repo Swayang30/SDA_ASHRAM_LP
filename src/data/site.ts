@@ -101,7 +101,7 @@ export interface HeroReelSlide extends HeroSlideBase {
    * TODO: add the real 16:9 poster frame here.
    */
   poster?: string;
-  /** TODO: drop the real reel at public/video/intro-reel.mp4 — one-line swap. */
+  /** The ashram reel played full-bleed behind the slide. */
   video: string;
 }
 
@@ -126,7 +126,7 @@ export const heroSlides: HeroSlide[] = [
     id: "ashram-reel",
     kind: "reel",
     navLabel: "Ashram film",
-    video: "/video/intro-reel.mp4",
+    video: "/video/hero1.mp4",
   },
 ];
 
@@ -1189,12 +1189,6 @@ export const footer = {
     },
   ],
   copyright: "© 2025 Swami Debananda Ashram. All rights reserved.",
-};
-
-/** The intro is the logo shutter only — the ashram film lives in the hero
- *  slider now, so there is no phase-2 video config here any more. */
-export const introConfig = {
-  LOGO_MS: 10000,
 };
 
 // ------------------------------------------------------------------ //

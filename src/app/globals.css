@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+/* The Sakha Ashrams section pins and scrubs horizontally on desktop widths
+   (under reduced motion it stays a native swipe row). Must match the
+   gsap.matchMedia() condition in SakhaAshrams.tsx. */
+@custom-variant pin-desktop (@media (min-width: 1024px) and (prefers-reduced-motion: no-preference));
+
 /* ------------------------------------------------------------------ *
  *  Swami Debananda Ashram — design tokens (Tailwind v4 @theme)
  *  Palette pulled exactly from the Figma file (see master brief §3.1)
@@ -224,7 +229,6 @@ html.lenis body {
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
-
 /* Hero reel slide — the wordless placeholder surface. A slow warm breathe so
    the panel reads as film rather than a flat block. Opacity only (GPU-cheap),
    and the reduced-motion block below stops it entirely. */

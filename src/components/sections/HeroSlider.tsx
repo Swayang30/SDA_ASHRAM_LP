@@ -107,8 +107,6 @@ function ReelBackground({
           aria-hidden
           onError={() => setVideoOk(false)}
         >
-          {/* TODO: drop the real ashram reel at public/video/intro-reel.mp4 —
-              once the file exists this slide plays it with no other change. */}
           <source src={slide.video} type="video/mp4" />
         </video>
       )}
@@ -116,7 +114,9 @@ function ReelBackground({
       {/* subtle vignette so the surface reads as film, not a flat panel */}
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_38%,rgba(0,0,0,0.55))]" />
 
-      {/* small centred play glyph — decorative, and the only mark on the slide */}
+      {/* small centred play glyph — shown only while the reel itself isn't
+          rendering (missing file / reduced motion), never over the live film */}
+      {!showVideo && (
       <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
         <span
           aria-hidden
@@ -134,6 +134,7 @@ function ReelBackground({
           </svg>
         </span>
       </div>
+      )}
     </>
   );
 }

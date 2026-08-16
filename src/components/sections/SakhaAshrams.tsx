@@ -29,11 +29,14 @@ function Fact({ label, value }: { label: string; value: string }) {
 function AshramCard({ item }: { item: AshramItem }) {
   return (
     <article
-      className="group relative flex w-[78vw] max-w-90 shrink-0 snap-start flex-col overflow-hidden rounded-3xl bg-white shadow-warm-sm transition-shadow duration-500 hover:shadow-warm sm:w-85 lg:w-100 lg:snap-align-none"
+      className="group relative flex w-[78vw] max-w-90 shrink-0 snap-start flex-col overflow-hidden rounded-3xl bg-white shadow-warm-sm transition-shadow duration-500 hover:shadow-warm sm:w-85 lg:w-100 pin-desktop:h-full pin-desktop:max-h-140 pin-desktop:snap-align-none"
     >
       {/* cover */}
-      {/* taller on mobile so a long ashram name still sits inside the cover */}
-      <div className="relative aspect-4/3 overflow-hidden sm:aspect-video">
+      {/* taller on mobile so a long ashram name still sits inside the cover;
+          on lg the cover is the flexible part of the card — it absorbs
+          whatever height the pinned viewport can spare, so the facts and the
+          "View ashram" foot are never cropped */}
+      <div className="relative aspect-4/3 overflow-hidden sm:aspect-video pin-desktop:aspect-auto pin-desktop:min-h-40 pin-desktop:flex-1">
         <Image
           src={item.card ?? item.gallery[0]}
           alt=""
@@ -61,8 +64,8 @@ function AshramCard({ item }: { item: AshramItem }) {
         </div>
       </div>
 
-      {/* facts */}
-      <div className="flex flex-1 flex-col p-5">
+      {/* facts — natural height on lg (the cover flexes instead) */}
+      <div className="flex flex-1 flex-col p-5 pin-desktop:flex-none">
         <dl className="grid grid-cols-2 gap-x-4 gap-y-3.5 border-b border-maroon/10 pb-4">
           <Fact label="Established" value={item.establishedYear} />
           <Fact label="Resident sadhus" value={String(item.residentSadhus)} />
@@ -127,13 +130,15 @@ function AshramCard({ item }: { item: AshramItem }) {
 /**
  * "Sakha Ashrams" — our ashrams in different places.
  *
- * Desktop: the section pins and the card track travels right → left on scrub
- * until the last card lands, then the section releases. Distance is measured
- * from the track's own width (it is `w-max` at lg, so offsetWidth IS the
- * content width) and recomputed on refresh, so pinning never jumps.
+ * Desktop (the `pin-desktop` variant): the section pins and the card track
+ * travels right → left on scrub until the last card lands, then the section
+ * releases. Distance is measured from the track's own width (it is `w-max`
+ * when pinned, so offsetWidth IS the content width) and recomputed on
+ * refresh, so pinning never jumps. The card cover flexes to absorb the
+ * viewport height the facts don't need, so the card foot is never cropped.
  *
  * Mobile / reduced-motion: no pin — the very same track is a native
- * snap-scrolling swipe row, which is both faster and better UX on touch.
+ * snap-scrolling swipe row at the cards' natural height.
  */
 export default function SakhaAshrams() {
   const pinRef = useRef<HTMLDivElement>(null);
@@ -148,6 +153,7 @@ export default function SakhaAshrams() {
     const mm = gsap.matchMedia();
 
     mm.add(
+      // Must match the `pin-desktop` @custom-variant in globals.css.
       "(min-width: 1024px) and (prefers-reduced-motion: no-preference)",
       () => {
         // offsetWidth is exact because the track is `w-max` at this breakpoint.
@@ -217,10 +223,10 @@ export default function SakhaAshrams() {
     >
       <div
         ref={pinRef}
-        // lg:pt-24 keeps the heading clear of the fixed navbar for the whole
-        // time the section is pinned; the box is exactly one viewport tall so
-        // the pin-spacer swap causes no layout jump.
-        className="relative flex flex-col justify-center overflow-hidden py-20 md:py-24 lg:h-svh lg:pb-6 lg:pt-24"
+        // pin-desktop:pt-24 keeps the heading clear of the fixed navbar for
+        // the whole time the section is pinned; the box is exactly one
+        // viewport tall so the pin-spacer swap causes no layout jump.
+        className="relative flex flex-col justify-center overflow-hidden py-20 md:py-24 pin-desktop:h-svh pin-desktop:pb-6 pin-desktop:pt-24"
       >
         <LotusBloom
           className="pointer-events-none absolute -right-16 -top-10 h-72 w-72 opacity-[0.07] lg:top-10"
@@ -250,7 +256,7 @@ export default function SakhaAshrams() {
         */}
         <div
           ref={trackRef}
-          className="no-scrollbar flex snap-x snap-mandatory gap-5 overflow-x-auto px-6 pb-3 will-change-transform md:gap-7 md:px-12 lg:w-max lg:snap-none lg:overflow-x-visible lg:px-[max(3rem,calc((100vw-1440px)/2+3rem))] lg:pb-0"
+          className="no-scrollbar flex snap-x snap-mandatory gap-5 overflow-x-auto px-6 pb-3 will-change-transform md:gap-7 md:px-12 lg:px-[max(3rem,calc((100vw-1440px)/2+3rem))] pin-desktop:min-h-0 pin-desktop:w-max pin-desktop:flex-1 pin-desktop:snap-none pin-desktop:overflow-x-visible pin-desktop:items-center pin-desktop:pb-0"
         >
           {ashrams.map((item) => (
             <AshramCard key={item.slug} item={item} />
@@ -259,8 +265,8 @@ export default function SakhaAshrams() {
 
         {/* affordance — desktop scrub hint / mobile swipe hint */}
         <p className="container-site mt-7 font-sans text-xs uppercase tracking-[0.22em] text-cocoa/40 lg:mt-6">
-          <span className="hidden lg:inline">Scroll to travel between ashrams</span>
-          <span className="lg:hidden">Swipe to browse ashrams</span>
+          <span className="hidden pin-desktop:inline">Scroll to travel between ashrams</span>
+          <span className="pin-desktop:hidden">Swipe to browse ashrams</span>
         </p>
       </div>
     </section>

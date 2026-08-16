@@ -13,9 +13,13 @@ const SESSION_KEY = "sda_intro_seen";
  * homepage. Bypassed under reduced-motion. Locks scroll while the intro runs.
  */
 export default function IntroGate() {
-  // `null` = undecided (first render, avoids SSR flash); false = skip; true = play.
+  // `null` = undecided (first render); false = skip; true = play.
   const [show, setShow] = useState<boolean | null>(null);
   const pathname = usePathname();
+
+  // While undecided on the homepage, an opaque cover is part of the
+  // server-rendered HTML — the site must never flash before the intro.
+  const undecided = show === null && pathname === "/";
 
   useEffect(() => {
     // The intro shutter belongs to the homepage only — deep links to detail
@@ -55,15 +59,17 @@ export default function IntroGate() {
 
   return (
     <AnimatePresence>
-      {show && (
+      {(show === true || undecided) && (
         <motion.div
           key="intro-gate"
-          className="fixed inset-0 z-100"
+          // Solid brand ground under the intro — nothing behind it can peek
+          // through, and the cover exists from the very first server paint.
+          className="fixed inset-0 z-100 bg-[#F0E5D0]"
           initial={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
         >
-          <IntroSequence onComplete={complete} />
+          {show === true && <IntroSequence onComplete={complete} />}
         </motion.div>
       )}
     </AnimatePresence>
