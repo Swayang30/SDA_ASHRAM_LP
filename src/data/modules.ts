@@ -1,7 +1,7 @@
 /**
- * HOMEPAGE MODULE REGISTRY  — controls homepage sections 4 … 15.
+ * HOMEPAGE MODULE REGISTRY  — controls homepage sections 4 … 16.
  * ---------------------------------------------------------------------------
- * The feedback says the ORDER of pages 4–15 "may be altered later" and must be
+ * The feedback says the ORDER of pages 4–16 "may be altered later" and must be
  * "easy to change". So every one of those sections is described here as data,
  * and the homepage simply renders `activeModules` in order.
  *
@@ -20,6 +20,8 @@ import {
   ashramBranches,
   organization,
   sakhaSection,
+  eventsContent,
+  eventsUi,
 } from "./site";
 
 // ------------------------------------------------------------------ //
@@ -79,11 +81,21 @@ export interface SakhaModule extends BaseModule {
   kind: "sakha";
 }
 
+/**
+ * "Events" — past-events rail + present event + calendar. All copy and
+ * dates come from `eventsContent` in site.ts; this entry only carries the
+ * section's position in the page order.
+ */
+export interface EventsModule extends BaseModule {
+  kind: "events";
+}
+
 export type HomeModule =
   | CardsModule
   | ContactModule
   | LegalModule
-  | SakhaModule;
+  | SakhaModule
+  | EventsModule;
 
 // ------------------------------------------------------------------ //
 // The registry                                                        //
@@ -113,12 +125,12 @@ export const homeModules: HomeModule[] = [
     })),
   },
 
-  // 4.5 — Sakha Ashrams  (PRIORITY — built). Sits immediately after the
-  //       Organization Overview; the fractional order keeps 5–15 untouched.
+  // 5 — Sakha Ashrams  (PRIORITY — built). Sits immediately after the
+  //     Organization Overview.
   {
     kind: "sakha",
     id: sakhaSection.id,
-    order: 4.5,
+    order: 5,
     enabled: true,
     navLabel: "Sakha Ashrams",
     eyebrow: sakhaSection.eyebrow,
@@ -127,11 +139,24 @@ export const homeModules: HomeModule[] = [
     bg: "cream",
   },
 
-  // 5 — Spiritual Content            (scaffolded, disabled — flip to build)
+  // 6 — Events  (PRIORITY — built). Past rail + present event + calendar.
+  //     Content lives in `eventsContent` in site.ts.
+  {
+    kind: "events",
+    id: eventsUi.section.id,
+    order: 6,
+    enabled: true,
+    navLabel: eventsUi.section.navLabel,
+    eyebrow: eventsContent.eyebrow,
+    heading: { lead: eventsContent.heading, accent: eventsContent.headingAccent },
+    intro: eventsContent.intro,
+  },
+
+  // 7 — Spiritual Content            (scaffolded, disabled — flip to build)
   {
     kind: "cards",
     id: "spiritual-content",
-    order: 5,
+    order: 7,
     enabled: false,
     navLabel: "Spiritual Content",
     eyebrow: "Wisdom",
@@ -147,11 +172,11 @@ export const homeModules: HomeModule[] = [
     ],
   },
 
-  // 6 — Ashram Content              (scaffolded, disabled)
+  // 8 — Ashram Content              (scaffolded, disabled)
   {
     kind: "cards",
     id: "ashram-content",
-    order: 6,
+    order: 8,
     enabled: false,
     navLabel: "Ashrams",
     eyebrow: "Our homes",
@@ -166,28 +191,11 @@ export const homeModules: HomeModule[] = [
     })),
   },
 
-  // 7 — Events                      (scaffolded, disabled)
-  {
-    kind: "cards",
-    id: "events",
-    order: 7,
-    enabled: false,
-    navLabel: "Events",
-    eyebrow: "Gather",
-    heading: { lead: "Events", accent: "& Calendar" },
-    bg: "ivory",
-    cards: [
-      { id: "annual-calendar", title: "Annual Calendar", blurb: "The year's observances.", href: "#", img: ph(900, 1100, "Annual Calendar", "541100") },
-      { id: "event-details", title: "Event Details", blurb: "Upcoming darshan & festivals.", href: "#", img: ph(900, 1100, "Event Details", "744012") },
-      { id: "live-streaming", title: "Live Streaming", blurb: "Watch live from the ashram.", href: "#", img: ph(900, 1100, "Live Streaming", "48342b") },
-    ],
-  },
-
-  // 8 — Philanthropic Activities    (scaffolded, disabled)
+  // 9 — Philanthropic Activities    (scaffolded, disabled)
   {
     kind: "cards",
     id: "philanthropic",
-    order: 8,
+    order: 9,
     enabled: false,
     navLabel: "Philanthropy",
     eyebrow: "Seva",
@@ -201,11 +209,11 @@ export const homeModules: HomeModule[] = [
     ],
   },
 
-  // 9 — Impact & Transparency       (scaffolded, disabled)
+  // 10 — Impact & Transparency       (scaffolded, disabled)
   {
     kind: "cards",
     id: "impact",
-    order: 9,
+    order: 10,
     enabled: false,
     navLabel: "Impact",
     eyebrow: "Accountability",
@@ -218,11 +226,11 @@ export const homeModules: HomeModule[] = [
     ],
   },
 
-  // 10 — Donation                   (scaffolded, disabled)
+  // 11 — Donation                   (scaffolded, disabled)
   {
     kind: "cards",
     id: "donation",
-    order: 10,
+    order: 11,
     enabled: false,
     navLabel: "Donate",
     eyebrow: "Give",
@@ -235,11 +243,11 @@ export const homeModules: HomeModule[] = [
     ],
   },
 
-  // 11 — Media Center               (scaffolded, disabled)
+  // 12 — Media Center               (scaffolded, disabled)
   {
     kind: "cards",
     id: "media",
-    order: 11,
+    order: 12,
     enabled: false,
     navLabel: "Media",
     eyebrow: "Gallery",
@@ -252,11 +260,11 @@ export const homeModules: HomeModule[] = [
     ],
   },
 
-  // 12 — Devotees                   (scaffolded, disabled)
+  // 13 — Devotees                   (scaffolded, disabled)
   {
     kind: "cards",
     id: "devotees",
-    order: 12,
+    order: 13,
     enabled: false,
     navLabel: "Devotees",
     eyebrow: "Sangha",
@@ -269,11 +277,11 @@ export const homeModules: HomeModule[] = [
     ],
   },
 
-  // 13 — Ashram Store               (scaffolded, disabled)
+  // 14 — Ashram Store               (scaffolded, disabled)
   {
     kind: "cards",
     id: "store",
-    order: 13,
+    order: 14,
     enabled: false,
     navLabel: "Store",
     eyebrow: "Shop",
@@ -286,11 +294,11 @@ export const homeModules: HomeModule[] = [
     ],
   },
 
-  // 14 — Contact                    (PRIORITY — built)
+  // 15 — Contact                    (PRIORITY — built)
   {
     kind: "contact",
     id: "contact",
-    order: 14,
+    order: 15,
     enabled: true,
     navLabel: "Contact",
     eyebrow: "Reach us",
@@ -321,11 +329,11 @@ export const homeModules: HomeModule[] = [
     ],
   },
 
-  // 15 — Legal Documentation        (built — light index)
+  // 16 — Legal Documentation        (built — light index)
   {
     kind: "legal",
     id: "legal",
-    order: 15,
+    order: 16,
     enabled: true,
     navLabel: "Legal",
     eyebrow: "Compliance",

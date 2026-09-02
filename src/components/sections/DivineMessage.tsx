@@ -107,8 +107,9 @@ export default function DivineMessage() {
             <div className="relative aspect-[4/5]">
               <Image
                 src={divineMessage.portrait}
-                alt={divineMessage.portraitCaption}
+                alt={divineMessage.portraitAlt}
                 fill
+                priority={false}
                 sizes="(max-width: 1024px) 90vw, 384px"
                 className="object-cover"
               />

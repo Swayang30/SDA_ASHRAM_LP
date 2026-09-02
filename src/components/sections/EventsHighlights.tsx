@@ -14,15 +14,15 @@ function EventCard({ event }: { event: EventItem }) {
       transition={{ type: "spring", stiffness: 260, damping: 22 }}
       className="group h-full overflow-hidden rounded-2xl bg-white shadow-warm-sm transition-shadow duration-500 hover:shadow-warm"
     >
-      <div className="relative aspect-[9/11] overflow-hidden">
+      <div className="relative aspect-9/11 overflow-hidden">
         <Image
           src={event.img}
           alt={event.title}
           fill
           sizes="(max-width: 768px) 80vw, 320px"
-          className="object-cover transition-transform duration-700 ease-[var(--ease-soft)] group-hover:scale-110"
+          className="object-cover transition-transform duration-700 ease-soft group-hover:scale-110"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-maroon/55 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-t from-maroon/55 via-transparent to-transparent" />
         <span className="absolute left-4 top-4 font-script text-2xl text-white drop-shadow">
           {event.script}
         </span>

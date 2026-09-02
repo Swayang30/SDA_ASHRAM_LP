@@ -510,7 +510,10 @@ export const divineMessage = {
   message:
     "Awaken to the light within. Serve without expectation, love without condition, and let simplicity be your discipline. The path to the divine is walked one selfless act at a time.",
   signature: "Swami Debananda Maharaj",
-  portrait: ph(900, 1150, "Latest Image of Gurudev", "6a3410", "ffd9b0"),
+  // Derived from /assets/G8.jpg with its green border trimmed (27px each side).
+  portrait: "/assets/gurudev-darshan.jpg",
+  portraitAlt:
+    "Swami Debananda Maharaj seated at a recent darshan, wearing a saffron turban and a lotus garland",
   portraitCaption: "Gurudev — latest darshan",
   // Quick links surface the most-visited destinations without a menu hop.
   quickLinks: [
@@ -1147,6 +1150,220 @@ export const sakhaSection = {
   heading: { lead: "Sakha", accent: "Ashrams" },
   intro:
     "Our ashrams in different places — each a home for sadhana and seva. Scroll to travel between them.",
+};
+
+// ------------------------------------------------------------------ //
+// Events — past rail, present event, calendar                         //
+// ------------------------------------------------------------------ //
+// Rendered by src/components/sections/EventsSection.tsx. Dates are ISO
+// 8601 (`YYYY-MM-DD`) so the calendar can group them without a date library
+// (see src/lib/events.ts). Every `ashramSlug` MUST match a slug in `ashrams`
+// above — an unknown slug logs an error in development and falls back to
+// printing the raw slug on the page.
+
+export type EventMedia = {
+  /** Image path, or the video file when `kind` is "video". */
+  src: string;
+  alt: string;
+  /** Still frame shown before the video loads and under reduced motion. */
+  poster?: string;
+  /** Defaults to "image". A "video" plays silently as ambient background media. */
+  kind?: "image" | "video";
+};
+
+export type PastEvent = {
+  id: string;
+  title: string;
+  date: string; // ISO 8601, e.g. "2026-07-14"
+  ashramSlug: string; // must resolve against the existing ashrams array
+  summary: string; // 1–2 sentences
+  media: EventMedia;
+  href?: string;
+};
+
+export type PresentEvent = {
+  id: string;
+  title: string;
+  startDate: string; // ISO
+  endDate?: string; // ISO
+  ashramSlug: string;
+  description: string; // 2–4 sentences
+  media: EventMedia;
+  cta?: { label: string; href: string };
+};
+
+export type CalendarEvent = {
+  id: string;
+  title: string;
+  date: string; // ISO
+  time?: string; // "6:00 AM"
+  ashramSlug: string;
+  href?: string;
+};
+
+export type EventsContent = {
+  eyebrow: string;
+  heading: string;
+  /** Optional second half of the heading, set in the accent colour. */
+  headingAccent?: string;
+  intro?: string;
+  past: PastEvent[]; // exactly 5 for now
+  present: PresentEvent;
+  calendar: CalendarEvent[];
+};
+
+export const eventsContent: EventsContent = {
+  eyebrow: "Gather with us", // TODO: replace with client content
+  heading: "Events", // TODO: replace with client content
+  headingAccent: "& Gatherings", // TODO: replace with client content
+  intro:
+    "Festivals, seva camps and satsangs across our ashrams — what has passed, what is happening now, and what is coming.", // TODO: replace with client content
+
+  past: [
+    {
+      id: "guru-purnima-2026", // TODO: replace with client content
+      title: "Guru Purnima Mahotsav", // TODO: replace with client content
+      date: "2026-07-29", // TODO: replace with client content
+      ashramSlug: "krishnapur-nadia", // TODO: replace with client content
+      summary:
+        "Devotees gathered from dawn for guru puja, bhajans and prasad in honour of the Master.", // TODO: replace with client content
+      media: {
+        src: "/images/events/guru-purnima.png", // TODO: replace with client content
+        alt: "Devotees seated for guru puja at Krishnapur Nadia Ashram", // TODO: replace with client content
+      },
+    },
+    {
+      id: "rath-yatra-2026", // TODO: replace with client content
+      title: "Rath Yatra Utsav", // TODO: replace with client content
+      date: "2026-07-16", // TODO: replace with client content
+      ashramSlug: "puri", // TODO: replace with client content
+      summary:
+        "The ashram chariot was drawn through the lanes of Puri with kirtan and community bhog.", // TODO: replace with client content
+      media: {
+        src: "/images/events/rath-yatra.png", // TODO: replace with client content
+        alt: "The ashram chariot being drawn through Puri", // TODO: replace with client content
+      },
+    },
+    {
+      id: "health-camp-2026", // TODO: replace with client content
+      title: "Annual Free Health Camp", // TODO: replace with client content
+      date: "2026-06-14", // TODO: replace with client content
+      ashramSlug: "bardhaman", // TODO: replace with client content
+      summary:
+        "Volunteer doctors screened over four hundred villagers and distributed medicines at no cost.", // TODO: replace with client content
+      media: {
+        src: "/images/events/health-camp.png", // TODO: replace with client content
+        alt: "Volunteer doctors attending villagers at the Bardhaman health camp", // TODO: replace with client content
+      },
+    },
+    {
+      id: "akshaya-tritiya-2026", // TODO: replace with client content
+      title: "Akshaya Tritiya Anna Daan", // TODO: replace with client content
+      date: "2026-04-19", // TODO: replace with client content
+      ashramSlug: "kolkata", // TODO: replace with client content
+      summary:
+        "A day of anna daan — thousands of meals served to the neighbourhood from the ashram kitchen.", // TODO: replace with client content
+      media: {
+        src: "/images/events/akshaya-tritiya.png", // TODO: replace with client content
+        alt: "Meals being served during Anna Daan at the Kolkata ashram", // TODO: replace with client content
+      },
+    },
+    {
+      id: "dol-utsav-2026", // TODO: replace with client content
+      title: "Dol Purnima Utsav", // TODO: replace with client content
+      date: "2026-03-03", // TODO: replace with client content
+      ashramSlug: "central-office", // TODO: replace with client content
+      summary:
+        "Colours, kirtan and the spring darshan of the samadhi shrine at the central ashram.", // TODO: replace with client content
+      media: {
+        src: "/images/events/dol-utsav.png", // TODO: replace with client content
+        alt: "Devotees celebrating Dol Purnima at the central ashram", // TODO: replace with client content
+      },
+    },
+  ],
+
+  present: {
+    id: "janmashtami-mahotsav-2026", // TODO: replace with client content
+    title: "Janmashtami Mahotsav", // TODO: replace with client content
+    startDate: "2026-09-01", // TODO: replace with client content
+    endDate: "2026-09-05", // TODO: replace with client content
+    ashramSlug: "krishnapur-nadia", // TODO: replace with client content
+    description:
+      "Five days of sadhana, kirtan and seva leading to the midnight birth of Sri Krishna. Morning satsangs are open to all, and the evening Bhagavat path is led by the resident sadhus. Prasad is served after every aarti.", // TODO: replace with client content
+    media: {
+      kind: "video",
+      src: "/video/gurudev-present-event.mp4", // renamed from "G'sV1.mp4" — the apostrophe 404s on static hosts
+      poster: "/images/events/present-event-poster.jpg", // frame 0 of the video
+      alt: "Gurudev during the Janmashtami Mahotsav at Krishnapur Nadia Ashram", // TODO: replace with client content
+    },
+    cta: { label: "Plan your visit", href: "/ashrams/krishnapur-nadia" }, // TODO: replace with client content
+  },
+
+  calendar: [
+    { id: "cal-janmashtami-aarti", title: "Janmashtami Midnight Aarti", date: "2026-09-04", time: "11:30 PM", ashramSlug: "krishnapur-nadia" }, // TODO: replace with client content
+    { id: "cal-nanda-utsav", title: "Nanda Utsav", date: "2026-09-05", time: "10:00 AM", ashramSlug: "krishnapur-nadia" }, // TODO: replace with client content
+    { id: "cal-monthly-satsang", title: "Monthly Satsang", date: "2026-09-13", time: "6:00 AM", ashramSlug: "kolkata" }, // TODO: replace with client content
+    { id: "cal-eye-camp", title: "Free Eye Check-up Camp", date: "2026-09-21", time: "9:00 AM", ashramSlug: "bardhaman" }, // TODO: replace with client content
+    { id: "cal-seva-sunday", title: "Seva Sunday — Old Age Home Visit", date: "2026-10-04", time: "8:00 AM", ashramSlug: "varanasi" }, // TODO: replace with client content
+    { id: "cal-mahalaya", title: "Mahalaya Tarpan", date: "2026-10-10", time: "5:00 AM", ashramSlug: "central-office" }, // TODO: replace with client content
+    { id: "cal-maha-saptami", title: "Maha Saptami Puja", date: "2026-10-19", time: "10:00 AM", ashramSlug: "krishnapur-nadia" }, // TODO: replace with client content
+    { id: "cal-maha-navami", title: "Maha Navami Bhog", date: "2026-10-21", time: "12:00 PM", ashramSlug: "bardhaman" }, // TODO: replace with client content
+    { id: "cal-lakshmi-puja", title: "Kojagari Lakshmi Puja", date: "2026-10-26", time: "7:00 PM", ashramSlug: "kolkata" }, // TODO: replace with client content
+    { id: "cal-kali-puja", title: "Kali Puja", date: "2026-11-08", time: "9:00 PM", ashramSlug: "central-office" }, // TODO: replace with client content
+    { id: "cal-annakut", title: "Annakut Utsav", date: "2026-11-10", time: "10:00 AM", ashramSlug: "krishnapur-nadia" }, // TODO: replace with client content
+    { id: "cal-rasa-purnima", title: "Rasa Purnima Kirtan", date: "2026-11-24", time: "6:30 PM", ashramSlug: "puri" }, // TODO: replace with client content
+    { id: "cal-blanket-seva", title: "Winter Blanket Distribution", date: "2026-12-12", time: "8:00 AM", ashramSlug: "bardhaman" }, // TODO: replace with client content
+    { id: "cal-gita-jayanti", title: "Gita Jayanti Path", date: "2026-12-20", time: "7:00 AM", ashramSlug: "varanasi" }, // TODO: replace with client content
+    { id: "cal-makar-sankranti", title: "Makar Sankranti Bhog", date: "2027-01-14", time: "11:00 AM", ashramSlug: "krishnapur-nadia" }, // TODO: replace with client content
+    { id: "cal-monthly-satsang-jan", title: "Monthly Satsang", date: "2027-01-24", time: "6:00 AM", ashramSlug: "kolkata" }, // TODO: replace with client content
+    { id: "cal-saraswati-puja", title: "Saraswati Puja", date: "2027-02-11", time: "9:00 AM", ashramSlug: "central-office" }, // TODO: replace with client content
+    { id: "cal-shivaratri", title: "Maha Shivaratri Jagaran", date: "2027-03-06", time: "8:00 PM", ashramSlug: "varanasi" }, // TODO: replace with client content
+  ],
+};
+
+/** UI microcopy for the Events section — kept here so components hold no strings. */
+export const eventsUi = {
+  section: { id: "events", navLabel: "Events" },
+  past: {
+    label: "Past gatherings",
+    railHint: "Scroll to step through past gatherings",
+    swipeHint: "Swipe to browse past gatherings",
+    previous: "Previous event",
+    next: "Next event",
+    counterSeparator: "—",
+    readMore: "Read about",
+  },
+  present: {
+    label: "Present event",
+    liveBadge: "Happening now",
+    upcomingBadge: "Up next",
+    beginsPrefix: "Begins",
+    ashramPrefix: "At",
+    viewAshram: "View ashram",
+    empty: {
+      title: "The ashram is quiet for now",
+      body: "No gathering is underway at the moment. Every festival, camp and satsang is listed in the calendar as soon as it is fixed.",
+      nextLabel: "Next on the calendar",
+    },
+  },
+  calendar: {
+    label: "Calendar",
+    heading: "This month at the ashrams",
+    previousMonth: "Previous month",
+    nextMonth: "Next month",
+    noEventsOnDay: "No events on this day.",
+    selectPrompt: "Select a marked date to see what is happening.",
+    eventsOnPrefix: "Events on",
+    monthEventsList: "Events this month",
+    noEventsThisMonth: "No events at the ashrams this month.",
+    timeTba: "Time to be announced",
+    todayLabel: "Today",
+    eventCountOne: "1 event",
+    eventCountMany: "{n} events", // {n} is replaced with the count
+    weekdays: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+    weekdaysLong: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+    months: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+  },
 };
 
 // ------------------------------------------------------------------ //

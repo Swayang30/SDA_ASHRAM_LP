@@ -60,6 +60,7 @@ export default function MissionBand() {
         aspect="aspect-[3/4]"
         rounded="rounded-3xl"
         sizes="(max-width: 640px) 60vw, (max-width: 1024px) 288px, 320px"
+        fadeEdges={false}
       />
     </section>
   );

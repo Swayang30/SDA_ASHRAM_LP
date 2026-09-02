@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import RegistrationForm from "@/components/forms/RegistrationForm";
+import RegisterForm from "@/components/forms/RegisterForm";
 import { LotusBloom } from "@/components/brand/LotusDecor";
 
 export const metadata: Metadata = {
@@ -39,7 +39,7 @@ export default function RegisterPage() {
 
       <div className="container-site py-16 md:py-20">
         <div className="mx-auto max-w-3xl">
-          <RegistrationForm />
+          <RegisterForm />
         </div>
       </div>
     </div>

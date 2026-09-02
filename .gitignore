@@ -42,3 +42,5 @@ next-env.d.ts
 
 # screenshots (build artefacts from verification runs)
 /screenshots/
+
+public/video/gurudev-present-event.mp4

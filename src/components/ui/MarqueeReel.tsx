@@ -46,6 +46,7 @@ export default function MarqueeReel({
   sizes = "(max-width: 768px) 45vw, 224px",
   caption = "overlay",
   ariaLabel = "Auto-scrolling image reel (drag to browse)",
+  fadeEdges = true,
 }: {
   items: ReelTile[];
   /** px per frame (~60fps). */
@@ -60,6 +61,11 @@ export default function MarqueeReel({
   caption?: "overlay" | "below";
   /** Describes the strip's contents — override when it isn't a photo reel. */
   ariaLabel?: string;
+  /**
+   * Soft-mask the strip's left/right edges (the `.marquee` mask in
+   * globals.css). Pass `false` for a hard clip at the container edge.
+   */
+  fadeEdges?: boolean;
 }) {
   const scroller = useRef<HTMLDivElement>(null);
   // Shared with the click handler so a drag can cancel the navigation.
@@ -145,7 +151,7 @@ export default function MarqueeReel({
   return (
     <div
       ref={scroller}
-      className={`marquee no-scrollbar cursor-grab overflow-x-auto touch-pan-y select-none active:cursor-grabbing ${className}`}
+      className={`${fadeEdges ? "marquee " : ""}no-scrollbar cursor-grab overflow-x-auto touch-pan-y select-none active:cursor-grabbing ${className}`}
       role="group"
       aria-label={ariaLabel}
     >

@@ -16,6 +16,8 @@ interface SectionHeadingProps {
   accentClassName?: string;
   /** Heading level. Detail pages pass "h1" — one per page. */
   as?: "h1" | "h2";
+  /** DOM id — lets a section point `aria-labelledby` at the heading. */
+  id?: string;
 }
 
 /**
@@ -31,6 +33,7 @@ export default function SectionHeading({
   leadClassName = "heading-lead",
   accentClassName = "heading-accent",
   as: Tag = "h2",
+  id,
 }: SectionHeadingProps) {
   const sizeClass =
     size === "lg"
@@ -39,6 +42,7 @@ export default function SectionHeading({
 
   return (
     <Tag
+      id={id}
       className={`font-serif font-medium tracking-tight ${sizeClass} ${
         align === "center" ? "text-center" : "text-left"
       } ${className}`}

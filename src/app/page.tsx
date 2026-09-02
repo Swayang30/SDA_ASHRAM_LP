@@ -9,7 +9,7 @@ import HomeModules from "@/components/home/HomeModules";
  *   §2 Landing        → <HeroSlider />   (hero slide + ashram reel slide)
  *   §2b Motion band   → <MissionBand />  (standalone "mission in motion")
  *   §3 Divine message → <DivineMessage />
- *   §4–15             → <HomeModules />  (order + enabled state live in
+ *   §4–16             → <HomeModules />  (order + enabled state live in
  *                                         src/data/modules.ts — change there)
  */
 export default function Home() {
