@@ -105,21 +105,36 @@ export interface HeroReelSlide extends HeroSlideBase {
   video: string;
 }
 
-export type HeroSlide = HeroStillSlide | HeroReelSlide;
+/**
+ * An image-only slide: a single full-bleed photograph and nothing else. It is
+ * its own variant rather than a `still` with optional copy so the compiler
+ * still guarantees that a `still` slide always has a headline and CTAs.
+ */
+export interface HeroImageSlide extends HeroSlideBase {
+  kind: "image";
+  /** Full-bleed photograph, object-cover. */
+  image: string;
+  alt: string;
+  /**
+   * The page's single <h1>. The slide carries no visible copy, so this is
+   * rendered visually hidden (`sr-only`) — the document keeps exactly one h1
+   * without putting a headline back on the photograph.
+   */
+  srHeading: string;
+}
+
+export type HeroSlide = HeroStillSlide | HeroReelSlide | HeroImageSlide;
 
 export const heroSlides: HeroSlide[] = [
   {
+    // Image-only landing slide: the photograph carries the whole slide. No
+    // headline, no CTAs, no placeholder lettering — only the hidden h1.
     id: "welcome",
-    kind: "still",
-    headline: "Build a heart that can touch all other hearts.",
+    kind: "image",
     navLabel: "Welcome",
-    // TODO: replace with the real dark water-ripple footage/still.
-    image: ph(1920, 1080, "Water Ripple — replace with ashram footage", "2c1810", "ff8a5b"),
-    video: "/video/hero-ripple.mp4",
-    ctas: [
-      { label: "Enter site", href: "#divine", variant: "white" },
-      { label: "Learn more", href: "#organization", variant: "outline-white" },
-    ],
+    image: "/assets/hero111.jpg",
+    alt: "Poster for the ashram's free eye examination camp at the Swami Debananda Eye Day Care Centre, Krishnapur",
+    srHeading: "Build a heart that can touch all other hearts.",
   },
   {
     // Reel slide — no copy, no CTA, no placeholder lettering. Just the film.
@@ -611,6 +626,12 @@ export interface OrgItem {
   summary: string; // card blurb
   script: string; // card grace-note
   img: string; // card image
+  /** Card-image alt text. Falls back to the title when omitted. */
+  imgAlt?: string;
+  /** CSS `object-position` for the card image — framing for real photography. */
+  imgPosition?: string;
+  /** Darken the top of the card image so the script label stays legible. */
+  imgScrim?: boolean;
   eyebrow: string; // detail-page script eyebrow
   subtitle: string; // detail-page subtitle
   hero: string; // detail-page hero image
@@ -715,7 +736,12 @@ export const organization: OrgItem[] = [
     summary:
       "The life, spiritual journey, teachings and message of Swami Debananda Maharaj.",
     script: "Guru",
-    img: ph(900, 1100, "About Gurudev", "744012"),
+    // Real photography — framed high so Gurudev's face is never cropped by
+    // the 9/11 card and never collides with the "Guru" label.
+    img: "/assets/gurudev-darshan.jpg",
+    imgAlt: "Swami Debananda Maharaj",
+    imgPosition: "50% 15%",
+    imgScrim: true,
     eyebrow: "Guru",
     subtitle:
       "The life, spiritual journey and teachings of Satguru Swami Debananda Maharaj.",
@@ -959,11 +985,28 @@ export interface AshramBranch {
   ashramSlug?: string;
 }
 
+/**
+ * The embedded map for the central office.
+ *
+ * `embedUrl` uses Google's keyless `output=embed` endpoint with the location's
+ * plus code: the maps.app.goo.gl share link is a redirect and refuses to be
+ * framed, so it cannot be used as an iframe src. `link` is that share link,
+ * which is the right thing to open in a new tab.
+ */
+export const centralMap = {
+  embedUrl:
+    "https://www.google.com/maps?q=7W25%2B3C4%20Nandara%2C%20West%20Bengal%20713407&output=embed",
+  link: "https://maps.app.goo.gl/D9uyBBE2cLToXhZA6",
+  title: "Map to Swami Debananda Ashram, Nadra, Krishnapur",
+  linkLabel: "Open in Google Maps",
+};
+
 export const centralAddress: AshramBranch = {
   id: "central",
   name: "Swami Debananda Ashram — Central Office",
   role: "Head Office",
-  address: "Krishnapur, Nadia, West Bengal 741101, India",
+  address:
+    "Swami Debananda Ashram, Nadra, Krishnapur, Nandara, West Bengal 713407, India",
   phone: "+91 00000 00000",
   email: "info@swamidebanandaashram.org",
   ashramSlug: "central-office",
@@ -1016,7 +1059,7 @@ export interface AshramItem {
   establishedYear: string;
   phone: string;
   residentSadhus: number;
-  headSadhu: string;
+  coordinator: string;
   /** Small scrollable strip on the card + the detail-page gallery. */
   gallery: string[];
   // ---- optional, additive fields (safe to omit) ----
@@ -1049,7 +1092,7 @@ export const ashrams: AshramItem[] = [
     email: "info@swamidebanandaashram.org", // TODO
     address: "Krishnapur, Nadia, West Bengal 741101, India", // TODO
     residentSadhus: 24, // TODO
-    headSadhu: "Swami Debananda Maharaj", // TODO
+    coordinator: "Swami Debananda Maharaj", // TODO
     blurb:
       "The founding hermitage and the administrative heart of the sangha — where the daily yajna, the old age home and the central office all sit on one campus.", // TODO
     card: ph(900, 1100, "Central Office", "541100"),
@@ -1066,7 +1109,7 @@ export const ashrams: AshramItem[] = [
     email: "krishnapur@swamidebanandaashram.org", // TODO
     address: "Krishnapur, Nadia, West Bengal 741101, India", // TODO
     residentSadhus: 32, // TODO
-    headSadhu: "Swami Premananda Maharaj", // TODO
+    coordinator: "Swami Premananda Maharaj", // TODO
     blurb:
       "The main ashram — meditation hall, temple, elder care and the yearly Guru Purnima gathering.", // TODO
     card: ph(900, 1100, "Krishnapur Nadia", "744012"),
@@ -1083,7 +1126,7 @@ export const ashrams: AshramItem[] = [
     email: "bardhaman@swamidebanandaashram.org", // TODO
     address: "Bardhaman, West Bengal, India", // TODO
     residentSadhus: 14, // TODO
-    headSadhu: "Swami Jnanananda Maharaj", // TODO
+    coordinator: "Swami Jnanananda Maharaj", // TODO
     blurb:
       "A branch ashram serving the surrounding villages with free healthcare camps and anna daan.", // TODO
     card: ph(900, 1100, "Bardhaman", "48342b"),
@@ -1100,7 +1143,7 @@ export const ashrams: AshramItem[] = [
     email: "kolkata@swamidebanandaashram.org", // TODO
     address: "Kolkata, West Bengal, India", // TODO
     residentSadhus: 9, // TODO
-    headSadhu: "Swami Shantananda Maharaj", // TODO
+    coordinator: "Swami Shantananda Maharaj", // TODO
     blurb:
       "The city centre — weekly satsang, spiritual discussions and the publications desk.", // TODO
     card: ph(900, 1100, "Kolkata Centre", "6a3410"),
@@ -1115,7 +1158,7 @@ export const ashrams: AshramItem[] = [
     establishedYear: "2013", // TODO
     phone: "+91 00000 00004", // TODO
     residentSadhus: 7, // TODO
-    headSadhu: "Swami Nityananda Maharaj", // TODO
+    coordinator: "Swami Nityananda Maharaj", // TODO
     blurb:
       "A seaside retreat for extended sadhana and pilgrim hospitality.", // TODO
     card: ph(900, 1100, "Puri Ashram", "541100"),
@@ -1130,7 +1173,7 @@ export const ashrams: AshramItem[] = [
     establishedYear: "2017", // TODO
     phone: "+91 00000 00005", // TODO
     residentSadhus: 11, // TODO
-    headSadhu: "Swami Chidananda Maharaj", // TODO
+    coordinator: "Swami Chidananda Maharaj", // TODO
     blurb:
       "Vedic education and the study of the Master's literary works, beside the Ganga.", // TODO
     card: ph(900, 1100, "Varanasi Ashram", "744012"),
@@ -1178,6 +1221,10 @@ export type PastEvent = {
   ashramSlug: string; // must resolve against the existing ashrams array
   summary: string; // 1–2 sentences
   media: EventMedia;
+  /**
+   * Reserved for a future past-event detail page. The cards deliberately do
+   * NOT render it — they are static articles, not links.
+   */
   href?: string;
 };
 
@@ -1292,7 +1339,7 @@ export const eventsContent: EventsContent = {
       "Five days of sadhana, kirtan and seva leading to the midnight birth of Sri Krishna. Morning satsangs are open to all, and the evening Bhagavat path is led by the resident sadhus. Prasad is served after every aarti.", // TODO: replace with client content
     media: {
       kind: "video",
-      src: "/video/gurudev-present-event.mp4", // renamed from "G'sV1.mp4" — the apostrophe 404s on static hosts
+      src: "/video/present-event-web.mp4", // web-compressed reel; the old gurudev-present-event.mp4 is no longer in the repo
       poster: "/images/events/present-event-poster.jpg", // frame 0 of the video
       alt: "Gurudev during the Janmashtami Mahotsav at Krishnapur Nadia Ashram", // TODO: replace with client content
     },
@@ -1331,6 +1378,8 @@ export const eventsUi = {
     previous: "Previous event",
     next: "Next event",
     counterSeparator: "—",
+    // Reserved: the past-event cards no longer link anywhere, so nothing
+    // renders this. Kept beside `PastEvent.href` for when they do again.
     readMore: "Read about",
   },
   present: {
@@ -1379,6 +1428,14 @@ export const social: { label: string; href: string }[] = [
 
 export const footer = {
   wordmark: "SWAMI DEBANANDA ASHRAM",
+  /** The official ashram mark — orange sunburst, mantra hub, name badge. */
+  logo: {
+    src: "/assets/logo-chakra.png",
+    alt: "Swami Debananda Ashram",
+    /** Matches the footprint of the SVG mark it replaced (h-14 w-14). */
+    width: 56,
+    height: 56,
+  },
   newsletter: {
     title: "Stay connected",
     body: "Receive event dates, teachings, and news from the ashram.",

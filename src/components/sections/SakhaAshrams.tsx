@@ -69,7 +69,7 @@ function AshramCard({ item }: { item: AshramItem }) {
         <dl className="grid grid-cols-2 gap-x-4 gap-y-3.5 border-b border-maroon/10 pb-4">
           <Fact label="Established" value={item.establishedYear} />
           <Fact label="Resident sadhus" value={String(item.residentSadhus)} />
-          <Fact label="Head sadhu" value={item.headSadhu} />
+          <Fact label="Coordinator" value={item.coordinator} />
           <Fact label="Phone" value={item.phone} />
         </dl>
 

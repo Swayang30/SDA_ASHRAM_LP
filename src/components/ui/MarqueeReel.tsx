@@ -81,20 +81,31 @@ export default function MarqueeReel({
     const state = { paused: false, dragging: false, startX: 0, startScroll: 0 };
     let raf = 0;
 
-    // Seed the reverse direction near the middle so it can wrap either way.
-    if (reverse) el.scrollLeft = el.scrollWidth / 2;
-
-    const wrap = () => {
-      const half = el.scrollWidth / 2;
-      if (half <= 0) return;
-      if (el.scrollLeft >= half) el.scrollLeft -= half;
-      else if (el.scrollLeft <= 0) el.scrollLeft += half;
+    /**
+     * The scroll offset is accumulated HERE, in a float, and written out whole
+     * each frame — never read back and incremented.
+     *
+     * `scrollLeft` snaps every write to the device-pixel grid, so a sub-pixel
+     * `scrollLeft += 0.45` reads back unchanged: the strip never advances, and
+     * the wrap below then bounces it between 0 and half the track forever —
+     * two positions that render identically because the tiles are duplicated,
+     * so the marquee looks frozen. Keeping the fraction in JS makes any
+     * `speed` work at any devicePixelRatio.
+     */
+    const half = () => el.scrollWidth / 2;
+    /** Fold any offset back into [0, half). */
+    const wrap = (x: number) => {
+      const h = half();
+      return h > 0 ? ((x % h) + h) % h : 0;
     };
 
+    // Seed the reverse direction near the middle so it can wrap either way.
+    let offset = reverse ? half() : 0;
+
     const step = () => {
-      if (!reduce && !state.paused && !state.dragging) {
-        el.scrollLeft += reverse ? -speed : speed;
-        wrap();
+      if (!reduce && !state.paused && !state.dragging && half() > 0) {
+        offset = wrap(offset + (reverse ? -speed : speed));
+        el.scrollLeft = offset;
       }
       raf = requestAnimationFrame(step);
     };
@@ -104,42 +115,49 @@ export default function MarqueeReel({
     const onEnter = () => (state.paused = true);
     const onLeave = () => (state.paused = false);
 
-    // Pointer drag → scroll (mouse + pen + touch via Pointer Events).
-    const onDown = (e: PointerEvent) => {
-      state.dragging = true;
-      state.startX = e.clientX;
-      state.startScroll = el.scrollLeft;
-      dragged.current = false;
-      el.setPointerCapture?.(e.pointerId);
-    };
+    /**
+     * Pointer drag → scroll (mouse + pen + touch via Pointer Events).
+     *
+     * Deliberately NOT `setPointerCapture`: capturing on this scrollport
+     * retargets pointerup to it, so the browser then fires `click` on the
+     * scrollport rather than on the tile's <a> — the link shows its href on
+     * hover but never navigates. The move/up pair lives on `window` instead,
+     * which keeps a drag alive outside the strip without touching the click.
+     */
     const onMove = (e: PointerEvent) => {
       if (!state.dragging) return;
       const dx = e.clientX - state.startX;
       // Past this threshold it's a swipe, not a click on a tile.
       if (Math.abs(dx) > 6) dragged.current = true;
-      el.scrollLeft = state.startScroll - dx;
-      wrap();
+      offset = wrap(state.startScroll - dx);
+      el.scrollLeft = offset;
     };
-    const onUp = (e: PointerEvent) => {
+    const onUp = () => {
       state.dragging = false;
-      el.releasePointerCapture?.(e.pointerId);
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+      window.removeEventListener("pointercancel", onUp);
+    };
+    const onDown = (e: PointerEvent) => {
+      state.dragging = true;
+      state.startX = e.clientX;
+      state.startScroll = el.scrollLeft;
+      dragged.current = false;
+      window.addEventListener("pointermove", onMove);
+      window.addEventListener("pointerup", onUp);
+      window.addEventListener("pointercancel", onUp);
     };
 
     el.addEventListener("pointerenter", onEnter);
     el.addEventListener("pointerleave", onLeave);
     el.addEventListener("pointerdown", onDown);
-    el.addEventListener("pointermove", onMove);
-    el.addEventListener("pointerup", onUp);
-    el.addEventListener("pointercancel", onUp);
 
     return () => {
       cancelAnimationFrame(raf);
+      onUp();
       el.removeEventListener("pointerenter", onEnter);
       el.removeEventListener("pointerleave", onLeave);
       el.removeEventListener("pointerdown", onDown);
-      el.removeEventListener("pointermove", onMove);
-      el.removeEventListener("pointerup", onUp);
-      el.removeEventListener("pointercancel", onUp);
     };
   }, [items.length, speed, reverse]);
 
@@ -208,6 +226,11 @@ export default function MarqueeReel({
                   tabIndex={isClone ? -1 : undefined}
                   aria-label={item.ariaLabel ?? item.label}
                   draggable={false}
+                  // A clone still navigates on click, but must never take
+                  // focus: focus inside an aria-hidden subtree is invisible to
+                  // screen readers. Suppressing mousedown's default stops the
+                  // focus without touching the click that follows it.
+                  onMouseDown={isClone ? (e) => e.preventDefault() : undefined}
                   onClick={(e) => {
                     if (dragged.current) e.preventDefault();
                   }}

@@ -30,12 +30,21 @@ export function OverviewCard({ card }: { card: CardLink }) {
         <div className="relative aspect-9/11 overflow-hidden">
           <Image
             src={card.img}
-            alt={card.title}
+            alt={card.imgAlt ?? card.title}
             fill
             sizes="(max-width: 768px) 80vw, 360px"
+            style={card.imgPosition ? { objectPosition: card.imgPosition } : undefined}
             className="object-cover transition-transform duration-700 ease-soft group-hover:scale-110"
           />
           <div className="absolute inset-0 bg-linear-to-t from-maroon/60 via-transparent to-transparent" />
+          {/* Opt-in top scrim — only cards whose photograph is light at the
+              top need it to keep the script label readable. */}
+          {card.imgScrim && (
+            <div
+              aria-hidden
+              className="absolute inset-x-0 top-0 h-24 bg-linear-to-b from-maroon/65 to-transparent"
+            />
+          )}
           {card.script && (
             <span className="absolute left-4 top-4 font-script text-2xl text-white drop-shadow">
               {card.script}

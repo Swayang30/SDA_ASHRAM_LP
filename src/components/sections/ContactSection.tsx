@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import SectionHeading from "@/components/ui/SectionHeading";
@@ -48,30 +47,21 @@ export default function ContactSection({ module }: { module: ContactModule }) {
               whileHover={href ? { y: -6 } : undefined}
               transition={{ type: "spring", stiffness: 260, damping: 22 }}
               className="group relative flex h-full flex-col overflow-hidden rounded-2xl bg-white shadow-warm-sm transition-shadow duration-500 hover:shadow-warm has-[a:focus-visible]:outline has-[a:focus-visible]:outline-offset-2 has-[a:focus-visible]:outline-orange">
-              <div className="relative h-56 overflow-hidden md:h-64">
-                <motion.div
-                  className="absolute inset-0"
-                  initial={{ scale: 1.15 }}
-                  whileInView={{ scale: 1 }}
-                  viewport={{ once: true, amount: 0.3 }}
-                  transition={{ duration: 6, ease: "easeOut" }}
-                >
-                  <Image
-                    src={module.mapImage}
-                    alt={`Map showing ${a.name}`}
-                    fill
-                    sizes="(max-width: 1024px) 100vw, 700px"
-                    className="object-cover"
-                  />
-                </motion.div>
-                <div className="absolute inset-0 bg-maroon/5" />
-                {/* pin */}
-                <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-full">
-                  <svg width="42" height="42" viewBox="0 0 24 24" fill="var(--color-orange)" aria-hidden className="drop-shadow-lg">
-                    <path d="M12 2C7.6 2 4 5.6 4 10c0 5.4 7 11.5 7.3 11.7.4.3 1 .3 1.4 0C13 21.5 20 15.4 20 10c0-4.4-3.6-8-8-8Z" stroke="white" strokeWidth="1" />
-                    <circle cx="12" cy="10" r="3" fill="white" />
-                  </svg>
-                </div>
+              {/* Live map. `z-10` lifts it above the stretched card link's
+                  `after:` overlay — the same trick the address block below
+                  uses — so the map can be panned and zoomed while the rest of
+                  the card still opens the ashram page. An explicit
+                  `rounded-t-2xl` is needed here because an iframe is not
+                  reliably clipped by an ancestor's radius. */}
+              <div className="relative z-10 h-56 overflow-hidden rounded-t-2xl md:h-64">
+                <iframe
+                  src={module.map.embedUrl}
+                  title={module.map.title}
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  allowFullScreen
+                  className="absolute inset-0 h-full w-full border-0"
+                />
               </div>
 
               <div className="flex flex-1 flex-col p-7">
@@ -112,9 +102,35 @@ export default function ContactSection({ module }: { module: ContactModule }) {
                   )}
                 </address>
 
-                {href && (
-                  <span className="mt-5 inline-flex items-center gap-2 font-sans text-sm font-medium text-orange">
-                    View ashram
+                <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-2">
+                  {href && (
+                    <span className="inline-flex items-center gap-2 font-sans text-sm font-medium text-orange">
+                      View ashram
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="transition-transform duration-300 group-hover:translate-x-1"
+                        aria-hidden
+                      >
+                        <path d="M5 12h14M13 6l6 6-6 6" />
+                      </svg>
+                    </span>
+                  )}
+                  {/* `relative z-10` again — this one is a real link and has to
+                      sit above the stretched card link to be clickable. */}
+                  <a
+                    href={module.map.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="relative z-10 inline-flex items-center gap-2 rounded font-sans text-sm font-medium text-orange hover:text-maroon focus-visible:outline focus-visible:outline-offset-2 focus-visible:outline-orange"
+                  >
+                    {module.map.linkLabel}
                     <svg
                       width="16"
                       height="16"
@@ -124,13 +140,12 @@ export default function ContactSection({ module }: { module: ContactModule }) {
                       strokeWidth="2"
                       strokeLinecap="round"
                       strokeLinejoin="round"
-                      className="transition-transform duration-300 group-hover:translate-x-1"
                       aria-hidden
                     >
                       <path d="M5 12h14M13 6l6 6-6 6" />
                     </svg>
-                  </span>
-                )}
+                  </a>
+                </div>
               </div>
             </motion.div>
           </Reveal>

@@ -181,6 +181,10 @@ export function SectionBlock({ section }: { section: OrgSection }) {
             tileClassName="w-40 md:w-48"
             aspect="aspect-[4/5]"
             sizes="(max-width: 768px) 40vw, 192px"
+            // Hard clip at the container edge, like the homepage Seva strip —
+            // the default soft mask fades the tiles into the ivory page and
+            // reads as a white smear on both sides.
+            fadeEdges={false}
           />
         </div>
       )}

@@ -46,7 +46,7 @@ export default function AshramDetailView({ item }: { item: AshramItem }) {
     { label: "Location", value: item.location },
     { label: "Phone", value: item.phone },
     { label: "Resident sadhus", value: String(item.residentSadhus) },
-    { label: "Head sadhu", value: item.headSadhu },
+    { label: "Coordinator", value: item.coordinator },
     ...(item.facts ?? []),
   ];
 

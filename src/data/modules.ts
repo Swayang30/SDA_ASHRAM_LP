@@ -17,11 +17,13 @@
 import {
   ph,
   centralAddress,
+  centralMap,
   ashramBranches,
   organization,
   sakhaSection,
   eventsContent,
   eventsUi,
+  type OrgItem,
 } from "./site";
 
 // ------------------------------------------------------------------ //
@@ -35,7 +37,29 @@ export interface CardLink {
   blurb: string;
   href: string;
   img: string;
+  /** Image alt text. Falls back to the title when omitted. */
+  imgAlt?: string;
+  /** CSS `object-position` — framing control for real photography. */
+  imgPosition?: string;
+  /** Darken the top of the image so the script label stays legible on it. */
+  imgScrim?: boolean;
 }
+
+/**
+ * One Organization overview card. Shared by the homepage module below and the
+ * /organization page so the two can never present the same card differently.
+ */
+export const orgCard = (o: OrgItem): CardLink => ({
+  id: o.slug,
+  script: o.script,
+  title: o.title,
+  blurb: o.summary,
+  href: `/organization/${o.slug}`,
+  img: o.img,
+  imgAlt: o.imgAlt,
+  imgPosition: o.imgPosition,
+  imgScrim: o.imgScrim,
+});
 
 type Bg = "ivory" | "cream" | "blush";
 
@@ -61,7 +85,7 @@ export interface ContactModule extends BaseModule {
   kind: "contact";
   address: typeof centralAddress;
   branchCount: number;
-  mapImage: string;
+  map: typeof centralMap;
   cards: CardLink[];
 }
 
@@ -115,14 +139,7 @@ export const homeModules: HomeModule[] = [
     bg: "cream",
     // Cards derive from the `organization` data so the homepage preview and the
     // /organization page never drift apart.
-    cards: organization.map((o) => ({
-      id: o.slug,
-      script: o.script,
-      title: o.title,
-      blurb: o.summary,
-      href: `/organization/${o.slug}`,
-      img: o.img,
-    })),
+    cards: organization.map(orgCard),
   },
 
   // 5 — Sakha Ashrams  (PRIORITY — built). Sits immediately after the
@@ -308,7 +325,7 @@ export const homeModules: HomeModule[] = [
     bg: "ivory",
     address: centralAddress,
     branchCount: ashramBranches.length,
-    mapImage: ph(1000, 900, "Map+Krishnapur+Nadia", "e7ddc8", "744012"),
+    map: centralMap,
     cards: [
       {
         id: "ashrams",

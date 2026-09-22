@@ -1,9 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { gsap } from "@/lib/gsap";
-import { prefersReducedMotion } from "@/lib/useReducedMotion";
-import ChakraLogo from "@/components/brand/ChakraLogo";
+import Image from "next/image";
+import { useState } from "react";
 import { LotusVine } from "@/components/brand/LotusDecor";
 import ScrollFloat from "@/components/reactbits/ScrollFloat";
 import Reveal from "@/components/ui/Reveal";
@@ -11,24 +9,8 @@ import Button from "@/components/ui/Button";
 import { footer } from "@/data/site";
 
 export default function Footer() {
-  const wheelRef = useRef<HTMLDivElement>(null);
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
-
-  useEffect(() => {
-    const el = wheelRef.current;
-    if (!el || prefersReducedMotion()) return;
-    const ctx = gsap.context(() => {
-      gsap.to(el, {
-        rotation: 360,
-        ease: "none",
-        duration: 90,
-        repeat: -1,
-        transformOrigin: "50% 50%",
-      });
-    }, el);
-    return () => ctx.revert();
-  }, []);
 
   return (
     <footer className="relative overflow-hidden bg-brown text-ivory">
@@ -75,9 +57,16 @@ export default function Footer() {
         <div className="grid gap-12 md:grid-cols-[1.4fr_1fr_1fr]">
           <div>
             <div className="flex items-center gap-4">
-              <div ref={wheelRef} className="text-orange">
-                <ChakraLogo className="h-14 w-14" showMantra={false} />
-              </div>
+              {/* The official mark, at the footprint of the SVG wheel it
+                  replaced. It is not rotated: the logo carries the ashram's
+                  name in a badge, and a turning wordmark is unreadable. */}
+              <Image
+                src={footer.logo.src}
+                alt={footer.logo.alt}
+                width={footer.logo.width}
+                height={footer.logo.height}
+                className="h-14 w-14 shrink-0"
+              />
               <ScrollFloat
                 containerClassName="font-serif text-xl tracking-[0.18em] text-ivory"
                 stagger={0.02}
@@ -111,9 +100,10 @@ export default function Footer() {
           ))}
         </div>
 
-        <div className="mt-16 flex flex-col items-center justify-between gap-3 border-t border-ivory/15 pt-6 text-center sm:flex-row">
+        {/* One item now that the mantra has gone: centred at mobile width,
+            flush left from sm up — exactly where the copyright already sat. */}
+        <div className="mt-16 flex flex-col items-center gap-3 border-t border-ivory/15 pt-6 text-center sm:flex-row sm:text-left">
           <p className="font-sans text-xs text-ivory/50">{footer.copyright}</p>
-          <p className="font-script text-lg text-orange/80">ॐ तत् त्वम् असि</p>
         </div>
       </div>
     </footer>

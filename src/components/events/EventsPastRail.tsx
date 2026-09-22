@@ -6,7 +6,6 @@ import {
   useRef,
   useState,
   useSyncExternalStore,
-  type KeyboardEvent,
   type ReactNode,
 } from "react";
 import useEmblaCarousel from "embla-carousel-react";
@@ -69,6 +68,10 @@ interface EventsPastRailProps {
  * is a plain responsive grid with every card in normal flow. Nothing is
  * `inert` outside the desktop pin.
  *
+ * The cards are not links, so nothing inside the track can take focus: the
+ * rail is driven from the keyboard by its prev/next buttons, and tabbing
+ * past them leaves the section rather than landing in the pinned void.
+ *
  * State is derived (`useSyncExternalStore`) or set from GSAP / Embla
  * callbacks — no `setState` inside an effect body.
  */
@@ -85,8 +88,6 @@ export default function EventsPastRail({
   const trackRef = useRef<HTMLDivElement>(null);
   const fillRef = useRef<HTMLDivElement>(null);
   const stRef = useRef<ScrollTrigger | null>(null);
-  /** Step whose card link should receive focus once it is no longer inert. */
-  const focusStepRef = useRef<number | null>(null);
 
   const isPin = useMediaQuery(PIN_QUERY);
   const isReduced = useMediaQuery(REDUCED_QUERY);
@@ -243,24 +244,12 @@ export default function EventsPastRail({
     return () => mm.revert();
   }, [count, steps]);
 
-  // After a keyboard step the previously focused card may have gone inert
-  // (focus drops to <body>). Move focus to the spotlit card's link as soon
-  // as React has rendered it focusable again — DOM focus only, no setState.
-  useEffect(() => {
-    const target = focusStepRef.current;
-    if (target === null || target !== rail.step) return;
-    focusStepRef.current = null;
-    const card = trackRef.current?.querySelectorAll<HTMLElement>("[data-rail-card]")[target];
-    card?.querySelector<HTMLElement>("a")?.focus({ preventScroll: true });
-  }, [rail.step]);
-
   /* ---------------- Controls ---------------- */
   const scrollToStep = useCallback(
-    (index: number, focusCard = false) => {
+    (index: number) => {
       const st = stRef.current;
       if (!st) return;
       const target = Math.min(steps, Math.max(0, index));
-      focusStepRef.current = focusCard ? target : null;
       const y = st.start + (st.end - st.start) * (target / steps);
       const lenis = (
         window as unknown as {
@@ -282,18 +271,9 @@ export default function EventsPastRail({
     else embla?.scrollNext();
   };
 
-  // Arrow keys step the pinned rail from any focused card link, so every
-  // card — including the peeking fifth — is reachable from the keyboard.
-  const onTrackKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
-    if (!isPin) return;
-    if (e.key === "ArrowRight") {
-      e.preventDefault();
-      scrollToStep(rail.step + 1, true);
-    } else if (e.key === "ArrowLeft") {
-      e.preventDefault();
-      scrollToStep(rail.step - 1, true);
-    }
-  };
+  // The cards hold nothing focusable now that they are not links, so the
+  // rail's keyboard affordance is the prev/next pair above it: tab reaches
+  // those two buttons and then leaves the section — the pin never traps focus.
 
   const index = isPin ? rail.step : emblaIndex;
   const canPrev = isPin ? rail.step > 0 : emblaCanPrev;
@@ -353,7 +333,6 @@ export default function EventsPastRail({
       >
         <div
           ref={trackRef}
-          onKeyDown={onTrackKeyDown}
           className="relative flex touch-pan-y gap-5 px-6 pb-8 pt-2 will-change-transform md:gap-6 md:px-12 lg:px-[max(3rem,calc((100vw-1440px)/2+3rem))] pin-desktop:w-max pin-desktop:[--visible:3.35] xl:[--visible:4.35]! pin-desktop:[--card-w:min(calc((100vw_-_2*max(3rem,calc((100vw_-_1440px)/2+3rem))_-_4*1.5rem)/var(--visible)),calc(100svh_-_34rem))] motion-reduce:grid motion-reduce:grid-cols-1 motion-reduce:gap-6 sm:motion-reduce:grid-cols-2 lg:motion-reduce:grid-cols-3 xl:motion-reduce:grid-cols-5"
         >
           {events.map((event, i) => (
@@ -361,7 +340,6 @@ export default function EventsPastRail({
               key={event.id}
               event={event}
               months={months}
-              readMoreLabel={ui.readMore}
               inert={isPin && !isReduced && (i < rail.first || i > rail.last)}
               className="w-[76vw] shrink-0 sm:w-[calc(50%-0.75rem)] md:w-[calc(40%-0.9rem)] pin-desktop:w-(--card-w) motion-reduce:w-auto!"
             />

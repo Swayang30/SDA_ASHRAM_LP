@@ -5,6 +5,7 @@ import SectionHeading from "@/components/ui/SectionHeading";
 import Reveal from "@/components/ui/Reveal";
 import { LotusBloom } from "@/components/brand/LotusDecor";
 import { organization } from "@/data/site";
+import { orgCard } from "@/data/modules";
 
 export const metadata: Metadata = {
   title: "Organization Overview",
@@ -48,16 +49,7 @@ export default function OrganizationOverviewPage() {
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {organization.map((o, i) => (
               <Reveal key={o.slug} i={i}>
-                <OverviewCard
-                  card={{
-                    id: o.slug,
-                    script: o.script,
-                    title: o.title,
-                    blurb: o.summary,
-                    href: `/organization/${o.slug}`,
-                    img: o.img,
-                  }}
-                />
+                <OverviewCard card={orgCard(o)} />
               </Reveal>
             ))}
           </div>

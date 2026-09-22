@@ -9,6 +9,7 @@ import { useReducedMotion } from "@/lib/useReducedMotion";
 import {
   heroSlides,
   heroSliderConfig,
+  type HeroImageSlide,
   type HeroReelSlide,
   type HeroStillSlide,
 } from "@/data/site";
@@ -35,6 +36,62 @@ function StillBackground({ slide }: { slide: HeroStillSlide }) {
       <div className="absolute inset-0 bg-linear-to-r from-black/75 via-black/45 to-black/25" />
       <div className="absolute inset-x-0 bottom-0 h-1/2 bg-linear-to-t from-black/60 to-transparent" />
       <div className="hero-ripple pointer-events-none absolute inset-0 opacity-60" />
+    </>
+  );
+}
+
+/* ------------------------------------------------------------------ *
+ * An "image" slide — one artwork and nothing else: no headline, no CTA, no
+ * placeholder lettering, no ripple rings.
+ *
+ * The artwork is `object-contain`, never cropped: it is a wide, text-heavy
+ * poster, and `object-cover` on a full-viewport slide cut its headline, date
+ * and phone number off at every width. Two consequences are handled here:
+ *
+ *  1. Letterboxing. The bars are filled with a blurred, darkened copy of the
+ *     same file (one extra request — same URL, so the browser reuses it)
+ *     rather than a flat band. That darkened field is also what keeps the
+ *     navbar's white mark and menu button legible over the slide.
+ *  2. Overlap. The contained image is inset from the top and bottom so the
+ *     fixed navbar above and the dots / progress line / arrows below never
+ *     sit over the poster's own text. The padding is a little deeper than
+ *     each control block so the poster clears them rather than touching.
+ *
+ * `srHeading` keeps the document's single <h1> — visually hidden, because the
+ * slide is meant to carry no visible copy.
+ * ------------------------------------------------------------------ */
+function ImageSlide({ slide }: { slide: HeroImageSlide }) {
+  return (
+    <>
+      {/* letterbox fill — blurred + darkened, scaled up so the blur never
+          reveals a soft edge at the viewport boundary */}
+      <div aria-hidden className="absolute inset-0 overflow-hidden">
+        <Image
+          src={slide.image}
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="scale-110 object-cover blur-xl"
+        />
+        <div className="absolute inset-0 bg-black/60" />
+      </div>
+
+      {/* the poster itself — whole, uncropped, clear of every control */}
+      <div className="absolute inset-0 px-4 pb-26 pt-22 md:px-8 md:pb-30 md:pt-28">
+        <div className="relative h-full w-full">
+          <Image
+            src={slide.image}
+            alt={slide.alt}
+            fill
+            priority
+            sizes="100vw"
+            className="object-contain"
+          />
+        </div>
+      </div>
+
+      <h1 className="sr-only">{slide.srHeading}</h1>
     </>
   );
 }
@@ -161,8 +218,10 @@ function Arrow({ dir }: { dir: "prev" | "next" }) {
 /**
  * Full-viewport auto-advancing hero slider.
  *
- * Slide 1 is the original hero; slide 2 is the ashram reel that used to play
- * as intro phase 2. Slides are stacked and crossfaded with opacity/transform
+ * Slide 1 is an image-only landing photograph (its <h1> is visually hidden);
+ * slide 2 is the ashram reel that used to play as intro phase 2. The `still`
+ * variant is still supported by the union and the renderer below — no slide
+ * uses it at the moment. Slides are stacked and crossfaded with opacity/transform
  * only. Autoplay pauses on hover, on keyboard focus inside the slider, and
  * while the tab is hidden. Under `prefers-reduced-motion` there is no
  * autoplay and no fade — slide 1 shows statically and the controls still work.
@@ -238,7 +297,9 @@ export default function HeroSlider() {
             style={{ willChange: "opacity, transform" }}
             className={`absolute inset-0 ${active ? "" : "pointer-events-none"}`}
           >
-            {slide.kind === "still" ? (
+            {slide.kind === "image" ? (
+              <ImageSlide slide={slide} />
+            ) : slide.kind === "still" ? (
               <>
                 <StillBackground slide={slide} />
 

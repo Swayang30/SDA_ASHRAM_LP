@@ -5,7 +5,7 @@ import Link from "next/link";
 import Reveal from "@/components/ui/Reveal";
 import Button from "@/components/ui/Button";
 import { LotusBloom } from "@/components/brand/LotusDecor";
-import type { CalendarEvent, PresentEvent, eventsUi } from "@/data/site";
+import type { CalendarEvent, EventMedia, PresentEvent, eventsUi } from "@/data/site";
 import {
   ashramHref,
   formatDate,
@@ -46,6 +46,66 @@ function PinIcon() {
 }
 
 /**
+ * The present event's media, shared by the live/upcoming card and the
+ * "quiet for now" empty state so the reel is never tied to one branch.
+ *
+ * A "video" is ambient: silent, looping, no controls, hidden from assistive
+ * tech. Under `prefers-reduced-motion` it is never rendered at all — the
+ * poster still stands in, so nothing autoplays.
+ */
+function PresentMedia({
+  media,
+  reduced,
+  sizes,
+  decorative = false,
+}: {
+  media: EventMedia;
+  reduced: boolean;
+  sizes: string;
+  /** True when the media is a background behind copy that names the event. */
+  decorative?: boolean;
+}) {
+  const isVideo = media.kind === "video" && Boolean(media.poster);
+
+  if (isVideo && reduced) {
+    return (
+      <Image
+        src={media.poster as string}
+        alt=""
+        fill
+        sizes={sizes}
+        className="object-cover"
+      />
+    );
+  }
+  if (isVideo) {
+    return (
+      <video
+        className="absolute inset-0 h-full w-full object-cover"
+        src={media.src}
+        poster={media.poster}
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="metadata"
+        aria-hidden="true"
+        tabIndex={-1}
+      />
+    );
+  }
+  return (
+    <Image
+      src={media.src}
+      alt={decorative ? "" : media.alt}
+      fill
+      sizes={sizes}
+      className="object-cover"
+    />
+  );
+}
+
+/**
  * Block 3, left column — the present event.
  *
  * `live`     → media, "Happening now" badge with a slow-pulsing gold dot.
@@ -76,7 +136,19 @@ export default function EventsPresent({
         <p className="font-sans text-[0.68rem] uppercase tracking-[0.22em] text-ivory/60">
           {ui.label}
         </p>
-        <div className="relative mt-5 overflow-hidden rounded-3xl border border-gold/30 bg-ivory/5 p-8 sm:p-10">
+        {/* Same reel as the live card, here as the card's background. */}
+        <div className="relative mt-5 overflow-hidden rounded-3xl border border-gold/30 bg-brown">
+          <PresentMedia
+            media={event.media}
+            reduced={reduced}
+            sizes="(max-width: 1024px) 100vw, 55vw"
+            decorative
+          />
+          {/* Scrim. At 90% maroon even the lightest text in this card clears
+              4.5:1 against a pure-white frame of the reel (body ivory/70 →
+              6.1:1, the gold eyebrow → 4.6:1). */}
+          <div aria-hidden className="absolute inset-0 bg-maroon/90" />
+          <div className="relative p-8 sm:p-10">
           <LotusBloom
             className="pointer-events-none absolute -right-10 -top-10 h-56 w-56 opacity-[0.12]"
             fill="var(--color-gold)"
@@ -114,6 +186,7 @@ export default function EventsPresent({
               </Link>
             </div>
           ) : null}
+          </div>
         </div>
       </Reveal>
     );
@@ -121,7 +194,6 @@ export default function EventsPresent({
 
   const live = status === "live";
   const badge = live ? ui.liveBadge : ui.upcomingBadge;
-  const isVideo = event.media.kind === "video" && Boolean(event.media.poster);
 
   return (
     <div className="flex flex-col">
@@ -136,37 +208,11 @@ export default function EventsPresent({
           aria-label={event.title}
           className="relative mt-5 aspect-4/3 overflow-hidden rounded-3xl bg-brown shadow-warm"
         >
-          {isVideo && reduced ? (
-            // prefers-reduced-motion: no autoplay — show the poster still.
-            <Image
-              src={event.media.poster as string}
-              alt=""
-              fill
-              sizes="(max-width: 1024px) 100vw, 55vw"
-              className="object-cover"
-            />
-          ) : isVideo ? (
-            <video
-              className="absolute inset-0 h-full w-full object-cover"
-              src={event.media.src}
-              poster={event.media.poster}
-              autoPlay
-              muted
-              loop
-              playsInline
-              preload="metadata"
-              aria-hidden="true"
-              tabIndex={-1}
-            />
-          ) : (
-            <Image
-              src={event.media.src}
-              alt={event.media.alt}
-              fill
-              sizes="(max-width: 1024px) 100vw, 55vw"
-              className="object-cover"
-            />
-          )}
+          <PresentMedia
+            media={event.media}
+            reduced={reduced}
+            sizes="(max-width: 1024px) 100vw, 55vw"
+          />
           <div
             aria-hidden
             className="absolute inset-0 bg-linear-to-t from-maroon/60 via-transparent to-transparent"
